@@ -9,7 +9,6 @@ from . import db
 from . import telegram
 
 base_url = 'https://www.coolmod.com'
-telegram_token = os.getenv('TELEGRAM_TOKEN')
 telegram_chat_id = "1652193495"
 
 
