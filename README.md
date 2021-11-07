@@ -83,7 +83,7 @@ export MARIADB_PASSWORD=<PASSWORD>
 3. Install dependencies:
 
 ```
-Cd ~/scrapy-projects/coolmod_crawler
+cd ~/scrapy-projects/coolmod_crawler
 pip3 install -r requirements.txt
 ```
 
