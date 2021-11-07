@@ -66,7 +66,7 @@ mysql -upi -p -h <RASPBERYPI_IP>
 scp -r PythonProjects/coolmod_crawler <user>@<ip>:/home/<user>/scrapy-projects
 ```
 
-Set env variables:
+Set env variables (this is only for running manually, the cron job requires to set the env variables globally):
 
 ```
 nano ~/.bashrc
@@ -110,7 +110,7 @@ crontab -e
 ```
 
 ```
-*/2 * * * * /home/pi/crawl.sh
+*/2 * * * * MARIADB_USER=pi MARIADB_PASSWORD=<PASSWORD> TELEGRAM_TOKEN=<TOKEN> /home/pi/crawl.sh
 ```
 
 It will run every 2 minutes.
