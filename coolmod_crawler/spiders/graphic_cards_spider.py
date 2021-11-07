@@ -11,31 +11,31 @@ base_url = 'https://www.coolmod.com'
 
 target_cards: list = [
     {
-        "name": "3060",
+        "model": "3060",
         "max_price": 450
     },
     {
-        "name": "3060 Ti",
+        "model": "3060 Ti",
         "max_price": 650
     },
     {
-        "name": "3070",
+        "model": "3070",
         "max_price": 700
     },
     {
-        "name": "3070 Ti",
+        "model": "3070 Ti",
         "max_price": 1000
     },
     {
-        "name": "3080",
+        "model": "3080",
         "max_price": 1100
     },
     {
-        "name": "3080 Ti",
+        "model": "3080 Ti",
         "max_price": 1400
     },
     {
-        "name": "3090",
+        "model": "3090",
         "max_price": 1800
     },
 ]
@@ -62,7 +62,7 @@ class GraphicCardsSpider(scrapy.Spider):
                 0].extract()
 
             for target_card in target_cards:
-                if target_card['name'] in name and target_card['max_price'] >= self.parse_price(price):
+                if target_card['model'] in name and target_card['max_price'] >= self.parse_price(price):
                     if name not in result:
                         result.append(name)
                         message = """
