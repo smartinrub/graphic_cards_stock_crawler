@@ -12,38 +12,31 @@ base_url = 'https://www.coolmod.com'
 target_cards: list = [
     {
         "name": "3060",
-        "max_price": 450,
-        "exclusions": ["3060 Ti"]
+        "max_price": 450
     },
     {
         "name": "3060 Ti",
-        "max_price": 650,
-        "exclusions": []
+        "max_price": 650
     },
     {
         "name": "3070",
-        "max_price": 700,
-        "exclusions": ["3070 Ti"]
+        "max_price": 700
     },
     {
         "name": "3070 Ti",
-        "max_price": 1000,
-        "exclusions": []
+        "max_price": 1000
     },
     {
         "name": "3080",
-        "max_price": 1100,
-        "exclusions": ["3080 Ti"]
+        "max_price": 1100
     },
     {
         "name": "3080 Ti",
-        "max_price": 1400,
-        "exclusions": []
+        "max_price": 1400
     },
     {
         "name": "3090",
-        "max_price": 1800,
-        "exclusions": ["3090 Ti"]
+        "max_price": 1800
     },
 ]
 
