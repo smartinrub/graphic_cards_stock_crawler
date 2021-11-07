@@ -126,3 +126,6 @@ crontab -l
 ```
 grep CRON /var/log/syslog
 ```
+
+
+**TODO: Create cron job that cleans up the stock table at midnight**
