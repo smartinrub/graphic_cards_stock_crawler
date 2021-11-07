@@ -18,20 +18,62 @@ scrapy crawl graphic_cards
 
 ## Raspberry Setup
 
-1. Copy files to server:
+1. Install and configure MariaDB:
+
+Install:
+
+```
+sudo apt update
+sudo apt upgrade
+sudo apt install mariadb-server
+```
+
+Configure:
+
+```
+sudo mysql_secure_installation
+```
+
+Create user:
+
+```
+sudo mysql -uroot -p
+CREATE USER 'pi'@'%' IDENTIFIED BY '<PASSWORD>';
+GRANT ALL PRIVILEGES ON *.* TO 'pi'@'%';
+FLUSH PRIVILEGES;
+exit;
+```
+
+Configure remote access:
+
+```
+nano /etc/mysql/mariadb.conf.d/50-server.cnf
+```
+
+```
+bind-address            = 0.0.0.0
+```
+
+From your local machine:
+
+```
+mysql -upi -p -h <RASPBERYPI_IP>
+```
+
+2. Copy files to server:
 
 ```
 scp -r PythonProjects/coolmod_crawler <user>@<ip>:/home/<user>/scrapy-projects
 ```
 
-2. Install dependencies:
+3. Install dependencies:
 
 ```
 Cd ~/scrapy-projects/coolmod_crawler
 pip3 install -r requirements.txt
 ```
 
-3. Create script (`~/crawl.sh`):
+4. Create script (`~/crawl.sh`):
 
 ```sh
 #!/bin/sh
@@ -41,13 +83,13 @@ cd /home/<user>/scrapy-projects/coolmod_crawler
 /usr/local/bin/scrapy crawl graphic_cards
 ```
 
-4. Make the script executable:
+5. Make the script executable:
 
 ```
 chmod +x ~/crawl.sh
 ```
 
-5. Create cron job:
+6. Create cron job:
 
 ```
 crontab -e
@@ -59,13 +101,13 @@ crontab -e
 
 It will run every 2 minutes.
 
-6. Check cron jobs:
+7. Check cron jobs:
 
 ```
 crontab -l
 ```
 
-7. Check logs:
+8. Check logs:
 
 ```
 grep CRON /var/log/syslog
