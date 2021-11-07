@@ -52,7 +52,7 @@ class GraphicCardsSpider(scrapy.Spider):
     ]
 
     def parse(self, response, **kwargs):
-        prcessed_cards = []
+        processed_cards = []
         for graphic_card in response.selector.xpath(
                 '//div[@class="row categorylistproducts listtype-a hiddenproducts display-none"]/div'):
             name = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/text())')[0].extract()
@@ -68,11 +68,11 @@ class GraphicCardsSpider(scrapy.Spider):
                 continue
 
             # skip if the card was already processed
-            if name in prcessed_cards:
+            if name in processed_cards:
                 logging.info(f"Skipping: [{name}]. Already processed.")
                 continue
 
-            prcessed_cards.append(name)
+            processed_cards.append(name)
 
             for target_card in target_cards:
                 if target_card['model'] in name and target_card['max_price'] >= self.parse_price(price):
