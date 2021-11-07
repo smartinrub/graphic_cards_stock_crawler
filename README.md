@@ -66,6 +66,20 @@ mysql -upi -p -h <RASPBERYPI_IP>
 scp -r PythonProjects/coolmod_crawler <user>@<ip>:/home/<user>/scrapy-projects
 ```
 
+Set env variables:
+
+```
+nano ~/.bashrc
+```
+
+and add:
+
+```
+export TELEGRAM_TOKEN=<TOKEN>
+export MARIADB_USER=pi
+export MARIADB_PASSWORD=<PASSWORD>
+```
+
 3. Install dependencies:
 
 ```
