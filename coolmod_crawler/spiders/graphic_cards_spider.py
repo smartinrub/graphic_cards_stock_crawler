@@ -9,38 +9,6 @@ from . import db
 from . import telegram
 
 base_url = 'https://www.coolmod.com'
-
-target_cards: list = [
-    {
-        "model": "3060",
-        "max_price": 450
-    },
-    {
-        "model": "3060 Ti",
-        "max_price": 650
-    },
-    {
-        "model": "3070",
-        "max_price": 700
-    },
-    {
-        "model": "3070 Ti",
-        "max_price": 1000
-    },
-    {
-        "model": "3080",
-        "max_price": 1100
-    },
-    {
-        "model": "3080 Ti",
-        "max_price": 1400
-    },
-    {
-        "model": "3090",
-        "max_price": 2800
-    },
-]
-
 telegram_token = os.getenv('TELEGRAM_TOKEN')
 telegram_chat_id = "1652193495"
 
@@ -53,6 +21,8 @@ class GraphicCardsSpider(scrapy.Spider):
 
     def parse(self, response, **kwargs):
         processed_cards = []
+        target_cards = self.find_all_graphic_cards()
+
         for graphic_card in response.selector.xpath(
                 '//div[@class="row categorylistproducts listtype-a hiddenproducts display-none"]/div'):
             name = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/text())')[0].extract()
@@ -105,6 +75,12 @@ class GraphicCardsSpider(scrapy.Spider):
         )
 
         telegram.get_bot().send_message(text=message, chat_id=telegram_chat_id, parse_mode=ParseMode.MARKDOWN_V2)
+
+    @staticmethod
+    def find_all_graphic_cards() -> list:
+        cur = db.get_sql_connector().cursor(dictionary=True)
+        cur.execute("SELECT * FROM graphic_card")
+        return cur.fetchall()
 
     @staticmethod
     def find_stock(name: str) -> list:
