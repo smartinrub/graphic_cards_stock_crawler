@@ -1,5 +1,4 @@
 import logging
-import os
 
 import scrapy
 from telegram.parsemode import ParseMode
