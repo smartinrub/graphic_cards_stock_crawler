@@ -1,4 +1,6 @@
+import datetime
 import logging
+from datetime import datetime, timedelta
 
 import scrapy
 from telegram.parsemode import ParseMode
@@ -31,7 +33,8 @@ class GraphicCardsSpider(scrapy.Spider):
 
             result = self.find_stock(name)
 
-            if result[0][0] != 0:
+            # was notified in the last hour
+            if len(result) != 0 and result[0][4] + timedelta(hours=1) > datetime.now():
                 logging.info(f"Skipping: [{name}]. Already notified.")
                 continue
 
@@ -83,7 +86,7 @@ class GraphicCardsSpider(scrapy.Spider):
     @staticmethod
     def find_stock(name: str) -> list:
         cur = db.get_sql_connector().cursor()
-        query = f"SELECT COUNT(*) FROM stock WHERE name='{name}'"
+        query = f"SELECT * FROM stock WHERE name='{name}' ORDER BY in_stock_date DESC"
         cur.execute(query)
         return cur.fetchall()
 
