@@ -110,7 +110,7 @@ crontab -e
 ```
 
 ```
-*/2 * * * * MARIADB_USER=pi MARIADB_PASSWORD=<PASSWORD> TELEGRAM_TOKEN=<TOKEN> /home/pi/crawl.sh
+*/2 * * * * MARIADB_USER=pi MARIADB_PASSWORD=<PASSWORD> MARIADB_HOST=localhost MARIADB_SCHEMA=graphic_cards_stock_crawler TELEGRAM_TOKEN=<TOKEN> /home/pi/crawl.sh
 ```
 
 It will run every 2 minutes.
