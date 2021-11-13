@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/coolmod_crawler.iml" filepath="$PROJECT_DIR$/.idea/coolmod_crawler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/graphic_cards_stock_crawler.iml" filepath="$PROJECT_DIR$/.idea/graphic_cards_stock_crawler.iml" />
     </modules>
   </component>
 </project>

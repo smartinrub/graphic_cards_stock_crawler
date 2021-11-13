@@ -1,4 +1,4 @@
-# graphic_cards_crawler
+# graphic_cards_stock_crawler
 
 ## Running locally
 
@@ -6,14 +6,14 @@ Set environment variable `TELEGRAM_TOKEN`
 
 ### PyCharm
 
-Create a run configuration that points to: `graphic_cards_crawler/main.py`
+Create a run configuration that points to: `graphic_cards_stock_crawler/main.py`
 
 ### CLI
 
 Run:
 
 ```
-scrapy crawl graphic_cards
+scrapy crawl graphic_cards_stock`
 ```
 
 ## Raspberry Setup
@@ -63,7 +63,7 @@ mysql -upi -p -h <RASPBERYPI_IP>
 2. Copy files to server:
 
 ```
-scp -r PythonProjects/graphic_cards_crawler <user>@<ip>:/home/<user>/scrapy-projects
+scp -r PythonProjects/graphic_cards_stock_crawler <user>@<ip>:/home/<user>/scrapy-projects
 ```
 
 Set env variables (this is only for running manually, the cron job requires to set the env variables globally):
@@ -83,7 +83,7 @@ export MARIADB_PASSWORD=<PASSWORD>
 3. Install dependencies:
 
 ```
-cd ~/scrapy-projects/graphic_cards_crawler
+cd ~/scrapy-projects/graphic_cards_stock_crawler
 pip3 install -r requirements.txt
 ```
 
@@ -92,9 +92,9 @@ pip3 install -r requirements.txt
 ```sh
 #!/bin/sh
 # go to the spider directory
-cd /home/<user>/scrapy-projects/graphic_cards_crawler
+cd /home/<user>/scrapy-projects/graphic_cards_stock_crawler
 # run the spider
-/usr/local/bin/scrapy crawl graphic_cards
+/usr/local/bin/scrapy crawl graphic_cards_stock
 ```
 
 5. Make the script executable:

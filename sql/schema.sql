@@ -1,6 +1,6 @@
-CREATE DATABASE IF NOT EXISTS coolmod_crawler CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE DATABASE IF NOT EXISTS graphic_cards_stock_crawler CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-USE coolmod_crawler;
+USE graphic_cards_stock_crawler;
 
 CREATE TABLE IF NOT EXISTS graphic_card (
 	model VARCHAR(256) PRIMARY KEY,
