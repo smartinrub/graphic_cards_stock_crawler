@@ -127,5 +127,8 @@ crontab -l
 grep CRON /var/log/syslog
 ```
 
+## TODO
 
-**TODO: Create cron job that cleans up the stock table at midnight**
+* Crawler for LCLC
+* Add exclusions
+* Create CI/CD GitHub action
