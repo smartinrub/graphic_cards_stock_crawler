@@ -1,9 +1,10 @@
 import os
 import unittest
-# import telegram
-from telegram import Bot
-import telegram
 from unittest.mock import MagicMock, patch
+
+import mariadb
+import telegram
+from telegram import Bot
 
 from graphic_cards_stock_crawler.spiders import spider
 from .responses.coolmod_example import fake_response_from_file
@@ -20,9 +21,9 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         os.environ['TELEGRAM_TOKEN'] = "123:ABC"
         cls.spider = spider.GraphicCardsSpider()
 
+    @patch.object(mariadb, 'connect', MagicMock())
     @patch.object(telegram, 'Bot', MagicMock())
     @patch.object(Bot, 'send_message', MagicMock())
     def test_parse(self):
         # WHEN
         results = self.spider.parse(fake_response_from_file('coolmod_example.html'))
-
