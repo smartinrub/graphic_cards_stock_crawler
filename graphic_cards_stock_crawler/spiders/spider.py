@@ -3,6 +3,7 @@ import logging
 from datetime import datetime, timedelta
 
 import scrapy
+from telegram import Bot
 from telegram.parsemode import ParseMode
 from telegram.utils.helpers import escape_markdown
 
@@ -75,7 +76,8 @@ class GraphicCardsSpider(scrapy.Spider):
             base_url + link
         )
 
-        telegram.get_bot().send_message(text=message, chat_id=telegram_chat_id, parse_mode=ParseMode.MARKDOWN_V2)
+        bot: Bot = telegram.get_bot()
+        bot.send_message(text=message, chat_id=telegram_chat_id, parse_mode=ParseMode.MARKDOWN_V2)
 
     @staticmethod
     def find_all_graphic_cards() -> list:
