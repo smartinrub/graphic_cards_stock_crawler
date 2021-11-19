@@ -1,14 +1,16 @@
 import datetime
 import logging
+import uuid
 from datetime import datetime, timedelta
+from typing import List
 
 import scrapy
 from telegram import Bot
 from telegram.parsemode import ParseMode
 from telegram.utils.helpers import escape_markdown
 
-from . import db
 from . import telegram
+from .db import GraphicCard, Stock, DB
 
 base_url = 'https://www.coolmod.com'
 telegram_chat_id = "1652193495"
@@ -21,8 +23,9 @@ class GraphicCardsSpider(scrapy.Spider):
     ]
 
     def parse(self, response, **kwargs):
+        db = DB()
         processed_cards = []
-        target_cards = self.find_all_graphic_cards()
+        target_cards: List[GraphicCard] = db.get_all_graphic_cards()
 
         for graphic_card in response.selector.xpath(
                 '//div[@class="row categorylistproducts listtype-a hiddenproducts display-none"]/div'):
@@ -32,10 +35,10 @@ class GraphicCardsSpider(scrapy.Spider):
                 'normalize-space(.//div[@class="productPrice position-relative"]//div[@class="discount"]//span[@class="totalprice"]/text())')[
                 0].extract()
 
-            result = self.find_stock(name)
+            result: List[Stock] = db.get_all_stock_by_name(name)
 
             # was notified in the last hour
-            if len(result) != 0 and result[0][4] + timedelta(hours=1) > datetime.now():
+            if len(result) != 0 and result[0].in_stock_date + timedelta(hours=1) > datetime.now():
                 logging.info(f"Skipping: [{name}]. Already notified.")
                 continue
 
@@ -47,11 +50,10 @@ class GraphicCardsSpider(scrapy.Spider):
             processed_cards.append(name)
 
             for target_card in target_cards:
-                if target_card['model'] in name and target_card['max_price'] >= self.parse_price(price):
-                    self.send_message(name, target_card['model'], price, link)
-                    self.add_stock(name, target_card['model'], self.parse_price(price))
-
-        db.get_sql_connector().close()
+                if target_card.model in name and target_card.max_price >= self.parse_price(price):
+                    self.send_message(name, target_card.model, price, link)
+                    db.add_stock(
+                        Stock(id=str(uuid.uuid4()), name=name, model=target_card.model, price=self.parse_price(price)))
 
     @staticmethod
     def parse_price(price: str):
@@ -78,23 +80,3 @@ class GraphicCardsSpider(scrapy.Spider):
 
         bot: Bot = telegram.get_bot()
         bot.send_message(text=message, chat_id=telegram_chat_id, parse_mode=ParseMode.MARKDOWN_V2)
-
-    @staticmethod
-    def find_all_graphic_cards() -> list:
-        cur = db.get_sql_connector().cursor(dictionary=True)
-        cur.execute("SELECT * FROM graphic_card")
-        return cur.fetchall()
-
-    @staticmethod
-    def find_stock(name: str) -> list:
-        cur = db.get_sql_connector().cursor()
-        query = f"SELECT * FROM stock WHERE name='{name}' ORDER BY in_stock_date DESC"
-        cur.execute(query)
-        return cur.fetchall()
-
-    @staticmethod
-    def add_stock(name: str, model: str, price: float):
-        cur = db.get_sql_connector().cursor()
-        query = f"INSERT INTO stock (name, model, price) VALUES ('{name}', '{model}', '{price}')"
-        cur.execute(query)
-        db.get_sql_connector().commit()

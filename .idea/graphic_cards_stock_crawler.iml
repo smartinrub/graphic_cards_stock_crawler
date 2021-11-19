@@ -7,4 +7,11 @@
     <orderEntry type="jdk" jdkName="Python 3.10 (coomod-crawler)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
+  <component name="PyNamespacePackagesService">
+    <option name="namespacePackageFolders">
+      <list>
+        <option value="$MODULE_DIR$/graphic_cards_stock_crawler" />
+      </list>
+    </option>
+  </component>
 </module>
