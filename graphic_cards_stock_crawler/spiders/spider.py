@@ -9,8 +9,8 @@ from telegram import Bot
 from telegram.parsemode import ParseMode
 from telegram.utils.helpers import escape_markdown
 
-from .db import GraphicCard, Stock, DB
-from .telegram_bot import TelegramBot
+from graphic_cards_stock_crawler.utils.db import GraphicCard, Stock, DB
+from graphic_cards_stock_crawler.utils.telegram_bot import TelegramBot
 
 base_url = 'https://www.coolmod.com'
 telegram_chat_id = "1652193495"
