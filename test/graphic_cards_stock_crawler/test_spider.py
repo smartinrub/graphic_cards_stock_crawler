@@ -25,10 +25,18 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
               in_stock_date=datetime.strptime('2021-11-19 16:17:59', '%Y-%m-%d %H:%M:%S')
               )
     ]))
-    @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[GraphicCard(model='3070', max_price=1200)]))
-    @patch.object(DB, 'add_stock', MagicMock())
+    @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
+        GraphicCard(
+            model='3070',
+            max_price=1200
+        )
+    ]))
+    @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
     @patch.object(telegram, 'Bot', MagicMock())
     @patch.object(Bot, 'send_message', MagicMock())
-    def test_parse(self):
+    def test_parse(self, add_stock_mock):
         # WHEN
-        results = self.spider.parse(fake_response_from_file('coolmod_example.html'))
+        self.spider.parse(fake_response_from_file('coolmod_example.html'))
+
+        # THEN
+        self.assertEqual(add_stock_mock.call_count, 3)
