@@ -9,23 +9,27 @@ from telegram import Bot
 from telegram.parsemode import ParseMode
 from telegram.utils.helpers import escape_markdown
 
-from . import telegram
 from .db import GraphicCard, Stock, DB
+from .telegram_bot import TelegramBot
 
 base_url = 'https://www.coolmod.com'
 telegram_chat_id = "1652193495"
 
 
 class GraphicCardsSpider(scrapy.Spider):
+    telegram_bot: TelegramBot
+    db: DB
+
     name = "graphic_cards_stock"
     start_urls = [
         f'{base_url}/tarjetas-graficas/',
     ]
 
     def parse(self, response, **kwargs):
-        db = DB()
+        self.db = DB()
+        self.telegram_bot = TelegramBot()
         processed_cards = []
-        target_cards: List[GraphicCard] = db.get_all_graphic_cards()
+        target_cards: List[GraphicCard] = self.db.get_all_graphic_cards()
 
         for graphic_card in response.selector.xpath(
                 '//div[@class="row categorylistproducts listtype-a hiddenproducts display-none"]/div'):
@@ -35,7 +39,7 @@ class GraphicCardsSpider(scrapy.Spider):
                 'normalize-space(.//div[@class="productPrice position-relative"]//div[@class="discount"]//span[@class="totalprice"]/text())')[
                 0].extract()
 
-            result: List[Stock] = db.get_all_stock_by_name(name)
+            result: List[Stock] = self.db.get_all_stock_by_name(name)
 
             # was notified in the last hour
             if len(result) != 0 and result[0].in_stock_date + timedelta(hours=1) > datetime.now():
@@ -52,7 +56,7 @@ class GraphicCardsSpider(scrapy.Spider):
             for target_card in target_cards:
                 if target_card.model in name and target_card.max_price >= self.parse_price(price):
                     self.send_message(name, target_card.model, price, link)
-                    db.add_stock(
+                    self.db.add_stock(
                         Stock(id=str(uuid.uuid4()), name=name, model=target_card.model, price=self.parse_price(price)))
 
     @staticmethod
@@ -64,8 +68,7 @@ class GraphicCardsSpider(scrapy.Spider):
                      .strip()
                      )
 
-    @staticmethod
-    def send_message(name: str, model: str, price: str, link: str):
+    def send_message(self, name: str, model: str, price: str, link: str):
         message = """
         📣 *{0}*
         📃 Model: *{1}* 
@@ -78,5 +81,5 @@ class GraphicCardsSpider(scrapy.Spider):
             base_url + link
         )
 
-        bot: Bot = telegram.get_bot()
+        bot: Bot = self.telegram_bot.get_bot()
         bot.send_message(text=message, chat_id=telegram_chat_id, parse_mode=ParseMode.MARKDOWN_V2)
