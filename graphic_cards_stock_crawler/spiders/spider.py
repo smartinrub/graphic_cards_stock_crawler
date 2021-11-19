@@ -29,7 +29,6 @@ class GraphicCardsSpider(scrapy.Spider):
         self.db = DB()
         self.telegram_bot = TelegramBot()
         processed_cards = []
-        target_cards: List[GraphicCard] = self.db.get_all_graphic_cards()
 
         for graphic_card in response.selector.xpath(
                 '//div[@class="row categorylistproducts listtype-a hiddenproducts display-none"]/div'):
@@ -53,6 +52,7 @@ class GraphicCardsSpider(scrapy.Spider):
 
             processed_cards.append(name)
 
+            target_cards: List[GraphicCard] = self.db.get_all_graphic_cards()
             for target_card in target_cards:
                 if target_card.model in name and target_card.max_price >= self.parse_price(price):
                     self.send_message(name, target_card.model, price, link)
