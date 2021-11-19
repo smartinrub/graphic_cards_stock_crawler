@@ -4,7 +4,6 @@ from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import telegram
-from telegram import Bot
 
 from graphic_cards_stock_crawler.spiders import spider
 from graphic_cards_stock_crawler.utils.db import DB, Stock, GraphicCard
@@ -33,10 +32,11 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
     @patch.object(telegram, 'Bot', MagicMock())
-    @patch.object(Bot, 'send_message', MagicMock())
-    def test_parse(self, add_stock_mock):
+    @patch('telegram.Bot.send_message')
+    def test_parse(self, add_stock_mock, send_message_mock):
         # WHEN
         self.spider.parse(fake_response_from_file('coolmod_example.html'))
 
         # THEN
-        self.assertEqual(add_stock_mock.call_count, 3)
+        # self.assertEqual(add_stock_mock.call_count, 3)
+        self.assertEqual(send_message_mock.call_count, 3)
