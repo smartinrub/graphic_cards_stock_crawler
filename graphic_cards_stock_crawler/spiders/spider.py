@@ -35,7 +35,7 @@ class GraphicCardsSpider(scrapy.Spider):
             name = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/text())')[0].extract()
             link = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/@href)')[0].extract()
             price = graphic_card.xpath(
-                'normalize-space(.//div[@class="productPrice position-relative"]//div[@class="discount"]//span[@class="totalprice"]/text())')[
+                'normalize-space(.//div[@class="productPrice position-relative"]//div[@class="discount"]//span[@class="totalprice"])')[
                 0].extract()
 
             result: List[Stock] = self.db.get_all_stock_by_name(name)
