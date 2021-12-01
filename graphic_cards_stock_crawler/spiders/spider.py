@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 import uuid
 from datetime import datetime, timedelta
@@ -12,52 +13,72 @@ from telegram.utils.helpers import escape_markdown
 from graphic_cards_stock_crawler.utils.db import GraphicCard, Stock, DB
 from graphic_cards_stock_crawler.utils.telegram_bot import TelegramBot
 
-base_url = 'https://www.coolmod.com'
+coolmod_base_url = 'https://www.coolmod.com'
+ldlc_base_url = 'https://www.ldlc.com'
 telegram_chat_id = "1652193495"
 
 
 class GraphicCardsSpider(scrapy.Spider):
-    telegram_bot: TelegramBot
-    db: DB
+    telegram_bot: TelegramBot = TelegramBot()
+    db: DB = DB()
 
     name = "graphic_cards_stock"
     start_urls = [
-        f'{base_url}/tarjetas-graficas/',
+        f'{coolmod_base_url}/tarjetas-graficas/',
+        f'{ldlc_base_url}/es-es/informatica/piezas-de-informatica/tarjeta-grafica/c4684/+fdi-1+fv1026-5801.html'
     ]
 
     def parse(self, response, **kwargs):
-        self.db = DB()
-        self.telegram_bot = TelegramBot()
         processed_cards = []
+        if "coolmod" in response.url:
+            logging.info("Start processing Graphic Cards Stock from COOLMOD.")
+            processed_cards = []
 
-        for graphic_card in response.selector.xpath(
-                '//div[@class="row categorylistproducts listtype-a hiddenproducts display-none"]/div'):
-            name = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/text())')[0].extract()
-            link = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/@href)')[0].extract()
-            price = graphic_card.xpath(
-                'normalize-space(.//div[@class="productPrice position-relative"]//div[@class="discount"]//span[@class="totalprice"])')[
-                0].extract()
+            for graphic_card in response.selector.xpath(
+                    '//div[@class="row categorylistproducts listtype-a hiddenproducts display-none"]/div'):
+                name = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/text())')[0].extract()
+                link = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/@href)')[0].extract()
+                price = graphic_card.xpath(
+                    'normalize-space(.//div[@class="productPrice position-relative"]//div[@class="discount"]//span[@class="totalprice"])')[
+                    0].extract()
+                self.process_graphic_card(name, processed_cards, price, link)
 
-            result: List[Stock] = self.db.get_all_stock_by_name(name)
+        elif "ldlc" in response.url:
+            logging.info("Start processing Graphic Cards Stock from LDLC.")
+            graphic_cards_in_script = response.xpath('//script')[3].extract()
+            first = graphic_cards_in_script.find('{')
+            last = graphic_cards_in_script.rfind('}')
+            found_graphic_cards_json = json.loads(graphic_cards_in_script[first:last]
+                                                  .replace("'", "\"") + "}")['ecommerce']['impressions']
 
-            # was notified in the last hour
-            if len(result) != 0 and result[0].in_stock_date + timedelta(hours=1) > datetime.now():
-                logging.info(f"Skipping: [{name}]. Already notified.")
-                continue
+            for graphic_card in response.selector.xpath('//div[@class="listing-product"]/ul/li'):
+                id = graphic_card.css('li::attr(id)').extract()[0][4:]
+                name = graphic_card.xpath('normalize-space(.//div[@class="pdt-desc"]//a/text())')[0].extract()
+                link = graphic_card.xpath('normalize-space(.//div[@class="pdt-desc"]//a/@href)')[0].extract()
+                price = list(filter(lambda x: x['id'] == id, found_graphic_cards_json))[0].get('price')
+                self.process_graphic_card(name, processed_cards, price, link)
 
-            # skip if the card was already processed
-            if name in processed_cards:
-                logging.info(f"Skipping: [{name}]. Already processed.")
-                continue
+    def process_graphic_card(self, name: str, processed_cards: list, price: str, link: str):
+        result: List[Stock] = self.db.get_all_stock_by_name(name)
 
-            processed_cards.append(name)
+        # was notified in the last hour
+        if len(result) != 0 and result[0].in_stock_date + timedelta(hours=1) > datetime.now():
+            logging.info(f"Skipping: [{name}]. Already notified.")
+            return
 
-            target_cards: List[GraphicCard] = self.db.get_all_graphic_cards()
-            for target_card in target_cards:
-                if target_card.model in name and target_card.max_price >= self.parse_price(price):
-                    self.send_message(name, target_card.model, price, link)
-                    self.db.add_stock(
-                        Stock(id=str(uuid.uuid4()), name=name, model=target_card.model, price=self.parse_price(price)))
+        # skip if the card was already processed
+        if name in processed_cards:
+            logging.info(f"Skipping: [{name}]. Already processed.")
+            return
+
+        processed_cards.append(name)
+
+        target_cards: List[GraphicCard] = self.db.get_all_graphic_cards()
+        for target_card in target_cards:  # duplicated entries when series ti and normal
+            if target_card.model in name and target_card.max_price >= float(price):
+                self.send_message(name, target_card.model, price, ldlc_base_url + link)
+                self.db.add_stock(
+                    Stock(id=str(uuid.uuid4()), name=name, model=target_card.model, price=float(price)))
 
     @staticmethod
     def parse_price(price: str):
@@ -78,7 +99,7 @@ class GraphicCardsSpider(scrapy.Spider):
             escape_markdown(name, 2),
             escape_markdown(model, 2),
             escape_markdown(price, 2),
-            base_url + link
+            link
         )
 
         bot: Bot = self.telegram_bot.get_bot()
