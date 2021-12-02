@@ -78,6 +78,9 @@ and add:
 export TELEGRAM_TOKEN=<TOKEN>
 export MARIADB_USER=pi
 export MARIADB_PASSWORD=<PASSWORD>
+export MARIADB_HOST=localhost
+export MARIADB_PORT=3306
+export MARIADB_SCHEMA=graphic_cards_stock_crawler
 ```
 
 3. Install dependencies:
