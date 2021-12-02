@@ -12,7 +12,7 @@ def fake_response_from_file(file_name, url=None):
     returns: A scrapy HTTP response which can be used for unittesting.
     """
     if not url:
-        url = 'https://www.coolmod.com/tarjetas-graficas/'
+        raise Exception("Please provide URL")
 
     request = Request(url=url)
     if not file_name[0] == '/':
