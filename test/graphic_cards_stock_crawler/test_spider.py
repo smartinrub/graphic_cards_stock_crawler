@@ -29,6 +29,10 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         GraphicCard(
             model='3070',
             max_price=1200
+        ),
+        GraphicCard(
+            model='3090',
+            max_price=3000
         )
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
@@ -39,4 +43,4 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         self.spider.parse(fake_response_from_file('coolmod_example.html'))
 
         # THEN
-        self.assertEqual(add_stock_mock.call_count, 3)
+        self.assertEqual(4, add_stock_mock.call_count)
