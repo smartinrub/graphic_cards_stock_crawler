@@ -24,7 +24,7 @@ class GraphicCardsSpider(scrapy.Spider):
 
     name = "graphic_cards_stock"
     start_urls = [
-        # f'{coolmod_base_url}/tarjetas-graficas/',
+        f'{coolmod_base_url}/tarjetas-graficas/',
         f'{ldlc_base_url}/es-es/informatica/piezas-de-informatica/tarjeta-grafica/c4684/+fdi-1+fv1026-5801.html'
     ]
 
