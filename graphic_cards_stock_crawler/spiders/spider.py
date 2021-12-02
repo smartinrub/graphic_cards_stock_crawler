@@ -24,7 +24,7 @@ class GraphicCardsSpider(scrapy.Spider):
 
     name = "graphic_cards_stock"
     start_urls = [
-        f'{coolmod_base_url}/tarjetas-graficas/',
+        # f'{coolmod_base_url}/tarjetas-graficas/',
         f'{ldlc_base_url}/es-es/informatica/piezas-de-informatica/tarjeta-grafica/c4684/+fdi-1+fv1026-5801.html'
     ]
 
@@ -37,11 +37,13 @@ class GraphicCardsSpider(scrapy.Spider):
             for graphic_card in response.selector.xpath(
                     '//div[@class="row categorylistproducts listtype-a hiddenproducts display-none"]/div'):
                 name = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/text())')[0].extract()
+                if not name:
+                    continue
                 link = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/@href)')[0].extract()
-                price = graphic_card.xpath(
+                price = self.parse_price(graphic_card.xpath(
                     'normalize-space(.//div[@class="productPrice position-relative"]//div[@class="discount"]//span[@class="totalprice"])')[
-                    0].extract()
-                self.process_graphic_card(name, processed_cards, price, link)
+                                             0].extract())
+                self.process_graphic_card(name, processed_cards, price, f'{coolmod_base_url}{link}')
 
         elif "ldlc" in response.url:
             logging.info("Start processing Graphic Cards Stock from LDLC.")
@@ -55,10 +57,10 @@ class GraphicCardsSpider(scrapy.Spider):
                 id = graphic_card.css('li::attr(id)').extract()[0][4:]
                 name = graphic_card.xpath('normalize-space(.//div[@class="pdt-desc"]//a/text())')[0].extract()
                 link = graphic_card.xpath('normalize-space(.//div[@class="pdt-desc"]//a/@href)')[0].extract()
-                price = list(filter(lambda x: x['id'] == id, found_graphic_cards_json))[0].get('price')
-                self.process_graphic_card(name, processed_cards, price, link)
+                price = float(list(filter(lambda x: x['id'] == id, found_graphic_cards_json))[0].get('price'))
+                self.process_graphic_card(name, processed_cards, price, f'{ldlc_base_url}{link}')
 
-    def process_graphic_card(self, name: str, processed_cards: list, price: str, link: str):
+    def process_graphic_card(self, name: str, processed_cards: list, price: float, link: str):
         result: List[Stock] = self.db.get_all_stock_by_name(name)
 
         # was notified in the last hour
@@ -76,7 +78,7 @@ class GraphicCardsSpider(scrapy.Spider):
         target_cards: List[GraphicCard] = self.db.get_all_graphic_cards()
         for target_card in target_cards:  # duplicated entries when series ti and normal
             if target_card.model in name and target_card.max_price >= float(price):
-                self.send_message(name, target_card.model, price, ldlc_base_url + link)
+                self.send_message(name, target_card.model, str(price), link)
                 self.db.add_stock(
                     Stock(id=str(uuid.uuid4()), name=name, model=target_card.model, price=float(price)))
 
