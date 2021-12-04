@@ -38,7 +38,7 @@ jobs:
     steps:
       - name: copy files via ssh key
         uses: appleboy/scp-action@v0.1.0
-        env:
+        with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
