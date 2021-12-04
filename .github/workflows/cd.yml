@@ -43,6 +43,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
-          source: "./*"
+          source: "*"
           target: "/home/pi/scrapy-projects"
           use_insecure_cipher: true
