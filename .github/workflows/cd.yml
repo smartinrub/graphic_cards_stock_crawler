@@ -3,9 +3,11 @@ concurrency: backend-pipeline
 
 on:
   push:
-    branches: ["master"]
-    paths-ignore:
-      - 'wiki/**'
+    branches:
+      - "master"
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
