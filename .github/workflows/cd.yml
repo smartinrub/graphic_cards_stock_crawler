@@ -11,9 +11,17 @@ on:
 
 jobs:
   deploy:
-    name: SCP files to server
+    name: deploy to raspberry pi
     runs-on: ubuntu-latest
     steps:
+      - name: remove current files
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          script: rm -rf /home/pi/scrapy-projects/graphic_cards_stock_crawler
       - uses: actions/checkout@v2
       - name: copy files via ssh key
         uses: appleboy/scp-action@master
