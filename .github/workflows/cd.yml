@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: zip repo
-        run: |
-          mkdir ../build
-          cp -TR . ../build
-          tar -cvf deploy.tar ../build/
+#      - name: zip repo
+#        run: |
+#          mkdir ../build
+#          cp -TR . ../build
+#          tar -cvf deploy.tar ../build/
       - name: copy files via ssh key
         uses: appleboy/scp-action@master
         with:
@@ -27,6 +27,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
-          source: "deploy.tar"
-          target: "/home/pi/scrapy-projects"
+          source: "graphic_cards_stock_crawler/*.*"
+          target: "/home/pi/scrapy-projects/graphic_cards_stock_crawler"
           use_insecure_cipher: true
