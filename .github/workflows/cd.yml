@@ -22,6 +22,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
-          source: "graphic_cards_stock_crawler/*"
+          source: "graphic_cards_stock_crawler/*,sqs/*,scrapy.cfg,requirements.txt,main.py"
           target: "/home/pi/scrapy-projects/graphic_cards_stock_crawler"
           use_insecure_cipher: true
