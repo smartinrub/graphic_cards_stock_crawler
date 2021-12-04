@@ -1,4 +1,4 @@
-name: crawler-ci
+name: continuous-integration
 
 on:
   push:

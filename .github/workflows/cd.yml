@@ -1,5 +1,4 @@
-name: backend-continuous-delivery
-concurrency: backend-pipeline
+name: continuous-delivery
 
 on:
   push:
