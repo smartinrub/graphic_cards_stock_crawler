@@ -46,12 +46,3 @@ jobs:
           source: "."
           target: "/home/pi/scrapy-projects"
           use_insecure_cipher: true
-#      - name: copy files via ssh key
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.HOST }}
-#          username: ${{ secrets.USERNAME }}
-#          port: ${{ secrets.PORT }}
-#          key: ${{ secrets.SSHKEY }}
-#          script: whoami
-
