@@ -129,9 +129,3 @@ crontab -l
 ```
 grep CRON /var/log/syslog
 ```
-
-## TODO
-
-* Crawler for LCLC
-* Add exclusions
-* Create CI/CD GitHub action
