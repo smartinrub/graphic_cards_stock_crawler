@@ -86,10 +86,10 @@ ROBOTSTXT_OBEY = True
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
+DOWNLOAD_TIMEOUT = 5
+
+RETRY_TIMES = 3
+
 DOWNLOADER_MIDDLEWARES = {
-    'scrapy.downloadermiddlewares.retry.RetryMiddleware': None
+    'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
 }
-
-DOWNLOAD_TIMEOUT = 10
-
-RETRY_TIMES = 1
