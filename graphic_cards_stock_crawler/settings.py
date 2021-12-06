@@ -13,7 +13,7 @@ SPIDER_MODULES = ['graphic_cards_stock_crawler.spiders']
 NEWSPIDER_MODULE = 'graphic_cards_stock_crawler.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = 'graphic_cards_stock_crawler (http://www.sergiomartinrubio.com)'
+USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -86,10 +86,10 @@ ROBOTSTXT_OBEY = True
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
+DOWNLOAD_TIMEOUT = 5
+
+RETRY_TIMES = 3
+
 DOWNLOADER_MIDDLEWARES = {
-    'scrapy.downloadermiddlewares.retry.RetryMiddleware': None
+    'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
 }
-
-DOWNLOAD_TIMEOUT = 10
-
-RETRY_TIMES = 1
