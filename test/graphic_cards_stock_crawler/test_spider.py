@@ -90,7 +90,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
     @patch.object(telegram, 'Bot', MagicMock())
     @patch.object(Bot, 'send_message', MagicMock())
-    def test_parse_ldlc(self, add_stock_mock):
+    def test_parse_vsgamers(self, add_stock_mock):
         # WHEN
         self.spider.parse(fake_response_from_file(
             file_name='vsgamers_example.html',
