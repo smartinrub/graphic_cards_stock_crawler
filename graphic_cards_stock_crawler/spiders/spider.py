@@ -15,6 +15,7 @@ from graphic_cards_stock_crawler.utils.telegram_bot import TelegramBot
 
 coolmod_base_url = 'https://www.coolmod.com'
 ldlc_base_url = 'https://www.ldlc.com'
+vsgamers_base_url = 'https://www.vsgamers.es'
 telegram_chat_id = "1652193495"
 
 
@@ -22,28 +23,29 @@ class GraphicCardsSpider(scrapy.Spider):
     telegram_bot: TelegramBot = TelegramBot()
     db: DB = DB()
 
+    processed_cards = []
+
     name = "graphic_cards_stock"
     start_urls = [
         f'{coolmod_base_url}/tarjetas-graficas/',
-        f'{ldlc_base_url}/es-es/informatica/piezas-de-informatica/tarjeta-grafica/c4684/+fdi-1+fv1026-5801.html'
+        f'{ldlc_base_url}/es-es/informatica/piezas-de-informatica/tarjeta-grafica/c4684/+fdi-1+fv1026-5801.html',
+        f'{vsgamers_base_url}/category/componentes/tarjetas-graficas?hidden_without_stock=true&filter-tipo=nvidia-537'
     ]
 
     def parse(self, response, **kwargs):
-        processed_cards = []
         if "coolmod" in response.url:
             logging.info("Start processing Graphic Cards Stock from COOLMOD.")
-            processed_cards = []
 
             for graphic_card in response.selector.xpath(
                     '//div[@class="row categorylistproducts listtype-a hiddenproducts display-none"]/div'):
                 name = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/text())')[0].extract()
                 if not name:
                     continue
-                link = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/@href)')[0].extract()
+                path = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/@href)')[0].extract()
                 price = self.parse_price(graphic_card.xpath(
                     'normalize-space(.//div[@class="productPrice position-relative"]//div[@class="discount"]//span[@class="totalprice"])')[
                                              0].extract())
-                self.process_graphic_card(name, processed_cards, price, f'{coolmod_base_url}{link}')
+                self.process_graphic_card(name, price, f'{coolmod_base_url}{path}')
 
         elif "ldlc" in response.url:
             logging.info("Start processing Graphic Cards Stock from LDLC.")
@@ -56,11 +58,24 @@ class GraphicCardsSpider(scrapy.Spider):
             for graphic_card in response.selector.xpath('//div[@class="listing-product"]/ul/li'):
                 id = graphic_card.css('li::attr(id)').extract()[0][4:]
                 name = graphic_card.xpath('normalize-space(.//div[@class="pdt-desc"]//a/text())')[0].extract()
-                link = graphic_card.xpath('normalize-space(.//div[@class="pdt-desc"]//a/@href)')[0].extract()
+                path = graphic_card.xpath('normalize-space(.//div[@class="pdt-desc"]//a/@href)')[0].extract()
                 price = float(list(filter(lambda x: x['id'] == id, found_graphic_cards_json))[0].get('price'))
-                self.process_graphic_card(name, processed_cards, price, f'{ldlc_base_url}{link}')
+                self.process_graphic_card(name, price, f'{ldlc_base_url}{path}')
+        elif "vsgamers" in response.url:
+            logging.info("Start processing Graphic Cards Stock from VS Gamers.")
 
-    def process_graphic_card(self, name: str, processed_cards: list, price: float, link: str):
+            for graphic_card in response.selector.xpath(
+                    '//div[@class="vs-product-list"]/div[@class="vs-product-list-item"]'):
+                name = graphic_card.xpath('normalize-space(.//div[@class="vs-product-card-title"])')[0].extract()
+                if not name:
+                    continue
+                path = graphic_card.xpath('normalize-space(.//div[@class="vs-product-card-title"]/a/@href)')[
+                    0].extract()
+                price = self.parse_price(
+                    graphic_card.xpath('normalize-space(.//div[@class="vs-product-card-prices"])')[0].extract())
+                self.process_graphic_card(name, price, f'{vsgamers_base_url}{path}')
+
+    def process_graphic_card(self, name: str, price: float, link: str):
         result: List[Stock] = self.db.get_all_stock_by_name(name)
 
         # was notified in the last hour
@@ -69,21 +84,21 @@ class GraphicCardsSpider(scrapy.Spider):
             return
 
         # skip if the card was already processed
-        if name in processed_cards:
+        if name in self.processed_cards:
             logging.info(f"Skipping: [{name}]. Already processed.")
             return
 
-        processed_cards.append(name)
+        self.processed_cards.append(name)
 
         target_cards: List[GraphicCard] = self.db.get_all_graphic_cards()
         for target_card in target_cards:  # duplicated entries when series ti and normal
-            if target_card.model in name and target_card.max_price >= float(price):
+            if target_card.model in name and target_card.max_price >= price:
                 self.send_message(name, target_card.model, str(price), link)
                 self.db.add_stock(
-                    Stock(id=str(uuid.uuid4()), name=name, model=target_card.model, price=float(price)))
+                    Stock(id=str(uuid.uuid4()), name=name, model=target_card.model, price=price))
 
     @staticmethod
-    def parse_price(price: str):
+    def parse_price(price: str) -> float:
         return float(price
                      .replace("€", "")
                      .replace(".", "")

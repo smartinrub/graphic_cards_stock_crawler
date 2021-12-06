@@ -73,3 +73,29 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
 
         # THEN
         self.assertEqual(7, add_stock_mock.call_count)
+
+    @patch.object(DB, 'get_all_stock_by_name', MagicMock(return_value=[
+        Stock(id='c986d542-5d9c-414f-bdc7-8f69be9c802f',
+              name='Asus ROG Strix GeForce RTX 3070 OC LHR V2 GAMING 8GB GDDR6 - Tarjeta Gráfica',
+              model='3070', price=1199.94,
+              in_stock_date=datetime.strptime('2021-11-19 16:17:59', '%Y-%m-%d %H:%M:%S')
+              )
+    ]))
+    @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
+        GraphicCard(
+            model='T1000',
+            max_price=508.2
+        )
+    ]))
+    @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
+    @patch.object(telegram, 'Bot', MagicMock())
+    @patch.object(Bot, 'send_message', MagicMock())
+    def test_parse_vsgamers(self, add_stock_mock):
+        # WHEN
+        self.spider.parse(fake_response_from_file(
+            file_name='vsgamers_example.html',
+            url='https://www.vsgamers.es/category/componentes/tarjetas-graficas?filter-tipo=nvidia-537&hidden_without_stock=true'
+        ))
+
+        # THEN
+        self.assertEqual(1, add_stock_mock.call_count)
