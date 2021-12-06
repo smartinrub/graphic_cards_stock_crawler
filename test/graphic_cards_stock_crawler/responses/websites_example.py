@@ -21,7 +21,8 @@ def fake_response_from_file(file_name, url=None):
     else:
         file_path = file_name
 
-    file_content = open(file_path, 'r').read()
+    with open(file_path, 'r') as file:
+        file_content = file.read()
 
     response = HtmlResponse(url=url,
                             request=request,
