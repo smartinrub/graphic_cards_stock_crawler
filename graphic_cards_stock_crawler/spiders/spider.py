@@ -103,7 +103,15 @@ class GraphicCardsSpider(scrapy.Spider):
             if target_card.model in name and target_card.max_price >= price:
                 self.send_message(name, target_card.model, str(price), link)
                 self.db.add_stock(
-                    Stock(id=str(uuid.uuid4()), name=name, model=target_card.model, price=price))
+                    Stock(
+                        id=str(uuid.uuid4()),
+                        name=name,
+                        model=target_card.model,
+                        price=price,
+                        link=link,
+                        expired=False
+                    )
+                )
 
     @staticmethod
     def parse_price(price: str) -> float:
