@@ -2,7 +2,7 @@ import os
 from typing import List
 
 import sqlalchemy as db
-from sqlalchemy import String, Column, DateTime, Float
+from sqlalchemy import String, Column, DateTime, Float, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func, desc
 
@@ -22,6 +22,8 @@ class Stock(Base):
     model = Column(String)
     price = Column(Float)
     in_stock_date = Column(DateTime, server_default=func.now())
+    link = Column(String)
+    expired = Column(Boolean)
 
 
 class DB:
