@@ -6,9 +6,6 @@ from datetime import datetime, timedelta
 from typing import List
 
 import scrapy
-from telegram import Bot
-from telegram.parsemode import ParseMode
-from telegram.utils.helpers import escape_markdown
 
 from graphic_cards_stock_crawler.utils.db import GraphicCard, Stock, DB
 from graphic_cards_stock_crawler.utils.telegram_bot import TelegramBot
@@ -101,7 +98,7 @@ class GraphicCardsSpider(scrapy.Spider):
 
         for target_card in graphic_card_targets:  # duplicated entries when series ti and normal
             if target_card.model in name and target_card.max_price >= price:
-                self.send_message(name, target_card.model, str(price), link)
+                self.telegram_bot.send_message(telegram_chat_id, name, target_card.model, str(price), link)
                 self.db.add_stock(
                     Stock(
                         id=str(uuid.uuid4()),
@@ -121,19 +118,3 @@ class GraphicCardsSpider(scrapy.Spider):
                      .replace(",", ".")
                      .strip()
                      )
-
-    def send_message(self, name: str, model: str, price: str, link: str):
-        message = """
-        📣 *{0}*
-        📃 Model: *{1}* 
-        💰 Price: *{2}* 
-        🌎 Link: *[BUY]({3})*
-                                """.format(
-            escape_markdown(name, 2),
-            escape_markdown(model, 2),
-            escape_markdown(price, 2),
-            link
-        )
-
-        bot: Bot = self.telegram_bot.get_bot()
-        bot.send_message(text=message, chat_id=telegram_chat_id, parse_mode=ParseMode.MARKDOWN_V2)

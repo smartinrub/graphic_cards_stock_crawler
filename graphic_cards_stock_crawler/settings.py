@@ -93,3 +93,5 @@ RETRY_TIMES = 3
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
 }
+
+LOG_LEVEL = 'INFO'
