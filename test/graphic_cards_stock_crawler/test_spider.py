@@ -3,9 +3,6 @@ import unittest
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-import telegram
-from telegram import Bot
-
 from graphic_cards_stock_crawler.spiders import spider
 from graphic_cards_stock_crawler.utils.db import DB, Stock, GraphicCard
 from .responses.websites_example import fake_response_from_file
@@ -36,9 +33,8 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         )
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
-    @patch.object(telegram, 'Bot', MagicMock())
-    @patch.object(Bot, 'send_message', MagicMock())
-    def test_parse_coolmod(self, add_stock_mock):
+    @patch('graphic_cards_stock_crawler.utils.telegram_bot.Bot.send_message')
+    def test_parse_coolmod(self, add_stock_mock, send_message):
         # WHEN
         self.spider.parse(fake_response_from_file(
             file_name='coolmod_example.html',
@@ -47,6 +43,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
 
         # THEN
         self.assertEqual(4, add_stock_mock.call_count)
+        self.assertEqual(4, send_message.call_count)
 
     @patch.object(DB, 'get_all_stock_by_name', MagicMock(return_value=[
         Stock(id='c986d542-5d9c-414f-bdc7-8f69be9c802f',
@@ -62,9 +59,8 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         )
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
-    @patch.object(telegram, 'Bot', MagicMock())
-    @patch.object(Bot, 'send_message', MagicMock())
-    def test_parse_ldlc(self, add_stock_mock):
+    @patch('graphic_cards_stock_crawler.utils.telegram_bot.Bot.send_message')
+    def test_parse_ldlc(self, add_stock_mock, send_message):
         # WHEN
         self.spider.parse(fake_response_from_file(
             file_name='ldlc_example.html',
@@ -73,6 +69,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
 
         # THEN
         self.assertEqual(7, add_stock_mock.call_count)
+        self.assertEqual(7, send_message.call_count)
 
     @patch.object(DB, 'get_all_stock_by_name', MagicMock(return_value=[
         Stock(id='c986d542-5d9c-414f-bdc7-8f69be9c802f',
@@ -88,9 +85,8 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         )
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
-    @patch.object(telegram, 'Bot', MagicMock())
-    @patch.object(Bot, 'send_message', MagicMock())
-    def test_parse_vsgamers(self, add_stock_mock):
+    @patch('graphic_cards_stock_crawler.utils.telegram_bot.Bot.send_message')
+    def test_parse_vsgamers(self, add_stock_mock, send_message):
         # WHEN
         self.spider.parse(fake_response_from_file(
             file_name='vsgamers_example.html',
@@ -99,3 +95,4 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
 
         # THEN
         self.assertEqual(1, add_stock_mock.call_count)
+        self.assertEqual(1, send_message.call_count)
