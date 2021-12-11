@@ -93,18 +93,28 @@ class GraphicCardsSpider(scrapy.Spider):
                 )
                 self.db.set_expired_stock(non_expired_stock.name)
 
-    def process_graphic_card(self, name: str, price: float, link: str, graphic_card_targets: list):
+    @staticmethod
+    def parse_price(price: str) -> float:
+        return float(price
+                     .replace("€", "")
+                     .replace(".", "")
+                     .replace(",", ".")
+                     .strip()
+                     )
+
+    def process_graphic_card(self, name: str, price: float, link: str, graphic_card_targets: list[GraphicCard]):
         saved_stock: List[Stock] = self.db.get_all_non_expired_stock_by_name(name)
 
         self.processed_cards.append(name)
 
-        # was notified in the last hour
         if len(saved_stock) != 0:
             logging.info(f"Skipping: [{name}]. Already notified.")
             return
 
         for target_card in graphic_card_targets:
-            if target_card.model in name and target_card.max_price >= price:
+            if target_card.model.lower() in name.lower() \
+                    and not self.is_excluded(name.lower(), target_card.exclusion) \
+                    and target_card.max_price >= price:
                 message = self.telegram_bot.send_message(telegram_chat_id, name, target_card.model, str(price), link)
                 self.db.add_stock(
                     Stock(
@@ -119,10 +129,7 @@ class GraphicCardsSpider(scrapy.Spider):
                 )
 
     @staticmethod
-    def parse_price(price: str) -> float:
-        return float(price
-                     .replace("€", "")
-                     .replace(".", "")
-                     .replace(",", ".")
-                     .strip()
-                     )
+    def is_excluded(name: str, exclusion: str) -> bool:
+        if exclusion:
+            return exclusion.lower() in name
+        return False
