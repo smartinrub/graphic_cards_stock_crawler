@@ -102,7 +102,7 @@ class GraphicCardsSpider(scrapy.Spider):
                      .strip()
                      )
 
-    def process_graphic_card(self, name: str, price: float, link: str, graphic_card_targets: list[GraphicCard]):
+    def process_graphic_card(self, name: str, price: float, link: str, graphic_card_targets: list):
         saved_stock: List[Stock] = self.db.get_all_non_expired_stock_by_name(name)
 
         self.processed_cards.append(name)
