@@ -1,8 +1,6 @@
-import datetime
 import json
 import logging
 import uuid
-from datetime import datetime, timedelta
 from typing import List
 
 import scrapy
@@ -81,24 +79,33 @@ class GraphicCardsSpider(scrapy.Spider):
                     graphic_card.xpath('normalize-space(.//div[@class="vs-product-card-prices"])')[0].extract())
                 self.process_graphic_card(name, price, f'{vsgamers_base_url}{path}', graphic_card_targets)
 
+    def closed(self, reason):
+        non_expired_stocks: List[Stock] = self.db.get_non_expired_stock()
+        for non_expired_stock in non_expired_stocks:
+            if non_expired_stock.name not in self.processed_cards:
+                self.telegram_bot.edit_message(
+                    chat_id=telegram_chat_id,
+                    message_id=non_expired_stock.telegram_message_id,
+                    name=non_expired_stock.name,
+                    model=non_expired_stock.model,
+                    price=str(non_expired_stock.price),
+                    link=non_expired_stock.link
+                )
+                self.db.set_expired_stock(non_expired_stock.name)
+
     def process_graphic_card(self, name: str, price: float, link: str, graphic_card_targets: list):
-        saved_stock: List[Stock] = self.db.get_all_stock_by_name(name)
-
-        # was notified in the last hour
-        if len(saved_stock) != 0 and saved_stock[0].in_stock_date + timedelta(hours=1) > datetime.now():
-            logging.info(f"Skipping: [{name}]. Already notified.")
-            return
-
-        # skip if the card was already processed
-        if name in self.processed_cards:
-            logging.info(f"Skipping: [{name}]. Already processed.")
-            return
+        saved_stock: List[Stock] = self.db.get_all_non_expired_stock_by_name(name)
 
         self.processed_cards.append(name)
 
-        for target_card in graphic_card_targets:  # duplicated entries when series ti and normal
+        # was notified in the last hour
+        if len(saved_stock) != 0:
+            logging.info(f"Skipping: [{name}]. Already notified.")
+            return
+
+        for target_card in graphic_card_targets:
             if target_card.model in name and target_card.max_price >= price:
-                self.telegram_bot.send_message(telegram_chat_id, name, target_card.model, str(price), link)
+                message = self.telegram_bot.send_message(telegram_chat_id, name, target_card.model, str(price), link)
                 self.db.add_stock(
                     Stock(
                         id=str(uuid.uuid4()),
@@ -106,7 +113,8 @@ class GraphicCardsSpider(scrapy.Spider):
                         model=target_card.model,
                         price=price,
                         link=link,
-                        expired=False
+                        expired=False,
+                        telegram_message_id=message.message_id
                     )
                 )
 

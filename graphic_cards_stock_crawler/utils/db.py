@@ -24,12 +24,13 @@ class Stock(Base):
     in_stock_date = Column(DateTime, server_default=func.now())
     link = Column(String)
     expired = Column(Boolean)
+    telegram_message_id = Column(String)
 
 
 class DB:
     session = None
 
-    def __get_sql_session(self):
+    def get_sql_session(self):
         if not self.session:
             engine = db.create_engine(
                 f'mysql+pymysql://{os.getenv("MARIADB_USER")}:{os.getenv("MARIADB_PASSWORD")}@{os.getenv("MARIADB_HOST")}:{os.getenv("MARIADB_PORT")}/{os.getenv("MARIADB_SCHEMA")}')
@@ -40,11 +41,23 @@ class DB:
         return self.session
 
     def get_all_graphic_cards(self) -> List[GraphicCard]:
-        return self.__get_sql_session().query(GraphicCard).all()
+        return self.get_sql_session().query(GraphicCard).all()
 
-    def get_all_stock_by_name(self, name: str) -> List[Stock]:
-        return self.__get_sql_session().query(Stock).filter_by(name=name).order_by(desc(Stock.in_stock_date)).all()
+    def get_all_non_expired_stock_by_name(self, name: str) -> List[Stock]:
+        return self.get_sql_session().query(Stock)\
+            .filter_by(name=name)\
+            .filter_by(expired=False)\
+            .order_by(desc(Stock.in_stock_date))\
+            .all()
 
     def add_stock(self, stock: Stock):
-        self.__get_sql_session().add(stock)
-        self.__get_sql_session().commit()
+        self.get_sql_session().add(stock)
+        self.get_sql_session().commit()
+
+    def get_non_expired_stock(self) -> List[Stock]:
+        return self.get_sql_session().query(Stock).filter_by(expired=False).all()
+
+    def set_expired_stock(self, name: str):
+        stock = self.get_sql_session().query(Stock).filter(Stock.name == name).one()
+        stock.expired = True
+        self.get_sql_session().commit()
