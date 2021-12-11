@@ -45,10 +45,10 @@ class DB:
         return self.get_sql_session().query(GraphicCard).all()
 
     def get_all_non_expired_stock_by_name(self, name: str) -> List[Stock]:
-        return self.get_sql_session().query(Stock)\
-            .filter_by(name=name)\
-            .filter_by(expired=False)\
-            .order_by(desc(Stock.in_stock_date))\
+        return self.get_sql_session().query(Stock) \
+            .filter_by(name=name) \
+            .filter_by(expired=False) \
+            .order_by(desc(Stock.in_stock_date)) \
             .all()
 
     def add_stock(self, stock: Stock):
