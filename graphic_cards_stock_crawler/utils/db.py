@@ -13,6 +13,7 @@ class GraphicCard(Base):
     __tablename__ = 'graphic_card'
     model = Column(String, primary_key=True)
     max_price = Column(DateTime)
+    exclusion = Column(String)
 
 
 class Stock(Base):
