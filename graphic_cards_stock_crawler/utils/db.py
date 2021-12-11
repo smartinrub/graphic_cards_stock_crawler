@@ -11,7 +11,7 @@ Base = declarative_base()
 
 class GraphicCard(Base):
     __tablename__ = 'graphic_card'
-    model = Column(String, primary_key=True)
+    chipset = Column(String, primary_key=True)
     max_price = Column(DateTime)
     exclusion = Column(String)
 
@@ -20,7 +20,7 @@ class Stock(Base):
     __tablename__ = 'stock'
     id = Column(String, primary_key=True)
     name = Column(String)
-    model = Column(String)
+    chipset = Column(String)
     price = Column(Float)
     in_stock_date = Column(DateTime, server_default=func.now())
     link = Column(String)
