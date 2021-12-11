@@ -92,6 +92,7 @@ class GraphicCardsSpider(scrapy.Spider):
                     link=non_expired_stock.link
                 )
                 self.db.set_expired_stock(non_expired_stock.name)
+                logging.info(f"Expired [{non_expired_stock.name}].")
 
     @staticmethod
     def parse_price(price: str) -> float:
@@ -127,6 +128,7 @@ class GraphicCardsSpider(scrapy.Spider):
                         telegram_message_id=message.message_id
                     )
                 )
+                logging.info(f"Processed [{name}].")
 
     @staticmethod
     def is_excluded(name: str, exclusion: str) -> bool:
