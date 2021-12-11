@@ -15,13 +15,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         os.environ['TELEGRAM_TOKEN'] = "123:ABC"
         cls.spider = spider.GraphicCardsSpider()
 
-    @patch.object(DB, 'get_all_stock_by_name', MagicMock(return_value=[
-        Stock(id='c986d542-5d9c-414f-bdc7-8f69be9c802f',
-              name='Asus ROG Strix GeForce RTX 3070 OC LHR V2 GAMING 8GB GDDR6 - Tarjeta Gráfica',
-              model='3070', price=1199.94,
-              in_stock_date=datetime.strptime('2021-11-19 16:17:59', '%Y-%m-%d %H:%M:%S')
-              )
-    ]))
+    @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[]))
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
         GraphicCard(
             model='3070',
@@ -45,13 +39,40 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         self.assertEqual(4, add_stock_mock.call_count)
         self.assertEqual(4, send_message.call_count)
 
-    @patch.object(DB, 'get_all_stock_by_name', MagicMock(return_value=[
-        Stock(id='c986d542-5d9c-414f-bdc7-8f69be9c802f',
-              name='Asus ROG Strix GeForce RTX 3070 OC LHR V2 GAMING 8GB GDDR6 - Tarjeta Gráfica',
-              model='3070', price=1199.94,
-              in_stock_date=datetime.strptime('2021-11-19 16:17:59', '%Y-%m-%d %H:%M:%S')
-              )
+    @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[
+        Stock(
+            id='c986d542-5d9c-414f-bdc7-8f69be9c802f',
+            name='Asus ROG Strix GeForce RTX 3070 OC LHR V2 GAMING 8GB GDDR6 - Tarjeta Gráfica',
+            model='3070', price=1199.94,
+            in_stock_date=datetime.strptime('2021-11-19 16:17:59', '%Y-%m-%d %H:%M:%S'),
+            link="https://example.com",
+            expired=True
+        )
     ]))
+    @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
+        GraphicCard(
+            model='3070',
+            max_price=1200
+        ),
+        GraphicCard(
+            model='3090',
+            max_price=3000
+        )
+    ]))
+    @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
+    @patch('graphic_cards_stock_crawler.utils.telegram_bot.Bot.send_message')
+    def test_should_skip_when_found_not_expired(self, add_stock_mock, send_message):
+        # WHEN
+        self.spider.parse(fake_response_from_file(
+            file_name='coolmod_example.html',
+            url='https://www.coolmod.com/tarjetas-graficas/'
+        ))
+
+        # THEN
+        self.assertEqual(0, add_stock_mock.call_count)
+        self.assertEqual(0, send_message.call_count)
+
+    @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[]))
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
         GraphicCard(
             model='3080 Ti',
@@ -71,13 +92,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         self.assertEqual(7, add_stock_mock.call_count)
         self.assertEqual(7, send_message.call_count)
 
-    @patch.object(DB, 'get_all_stock_by_name', MagicMock(return_value=[
-        Stock(id='c986d542-5d9c-414f-bdc7-8f69be9c802f',
-              name='Asus ROG Strix GeForce RTX 3070 OC LHR V2 GAMING 8GB GDDR6 - Tarjeta Gráfica',
-              model='3070', price=1199.94,
-              in_stock_date=datetime.strptime('2021-11-19 16:17:59', '%Y-%m-%d %H:%M:%S')
-              )
-    ]))
+    @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[]))
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
         GraphicCard(
             model='T1000',
