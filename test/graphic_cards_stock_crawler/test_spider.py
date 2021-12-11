@@ -18,11 +18,11 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[]))
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
         GraphicCard(
-            model='3070',
+            chipset='3070',
             max_price=1200
         ),
         GraphicCard(
-            model='3090',
+            chipset='3090',
             max_price=3000
         )
     ]))
@@ -43,7 +43,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         Stock(
             id='c986d542-5d9c-414f-bdc7-8f69be9c802f',
             name='Asus ROG Strix GeForce RTX 3070 OC LHR V2 GAMING 8GB GDDR6 - Tarjeta Gráfica',
-            model='3070', price=1199.94,
+            chipset='3070', price=1199.94,
             in_stock_date=datetime.strptime('2021-11-19 16:17:59', '%Y-%m-%d %H:%M:%S'),
             link="https://example.com",
             expired=True
@@ -51,11 +51,11 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     ]))
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
         GraphicCard(
-            model='3070',
+            chipset='3070',
             max_price=1200
         ),
         GraphicCard(
-            model='3090',
+            chipset='3090',
             max_price=3000
         )
     ]))
@@ -75,7 +75,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[]))
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
         GraphicCard(
-            model='3080 Ti',
+            chipset='3080 Ti',
             max_price=2400
         )
     ]))
@@ -95,7 +95,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[]))
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
         GraphicCard(
-            model='T1000',
+            chipset='T1000',
             max_price=508.2
         )
     ]))

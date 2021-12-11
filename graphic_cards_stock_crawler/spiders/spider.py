@@ -87,7 +87,7 @@ class GraphicCardsSpider(scrapy.Spider):
                     chat_id=telegram_chat_id,
                     message_id=non_expired_stock.telegram_message_id,
                     name=non_expired_stock.name,
-                    model=non_expired_stock.model,
+                    chipset=non_expired_stock.chipset,
                     price=str(non_expired_stock.price),
                     link=non_expired_stock.link
                 )
@@ -113,15 +113,15 @@ class GraphicCardsSpider(scrapy.Spider):
             return
 
         for target_card in graphic_card_targets:
-            if target_card.model.lower() in name.lower() \
+            if target_card.chipset.lower() in name.lower() \
                     and not self.is_excluded(name.lower(), target_card.exclusion) \
                     and target_card.max_price >= price:
-                message = self.telegram_bot.send_message(telegram_chat_id, name, target_card.model, str(price), link)
+                message = self.telegram_bot.send_message(telegram_chat_id, name, target_card.chipset, str(price), link)
                 self.db.add_stock(
                     Stock(
                         id=str(uuid.uuid4()),
                         name=name,
-                        model=target_card.model,
+                        chipset=target_card.chipset,
                         price=price,
                         link=link,
                         expired=False,
