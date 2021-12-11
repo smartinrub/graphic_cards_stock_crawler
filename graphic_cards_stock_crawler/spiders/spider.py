@@ -93,6 +93,15 @@ class GraphicCardsSpider(scrapy.Spider):
                 )
                 self.db.set_expired_stock(non_expired_stock.name)
 
+    @staticmethod
+    def parse_price(price: str) -> float:
+        return float(price
+                     .replace("€", "")
+                     .replace(".", "")
+                     .replace(",", ".")
+                     .strip()
+                     )
+
     def process_graphic_card(self, name: str, price: float, link: str, graphic_card_targets: list[GraphicCard]):
         saved_stock: List[Stock] = self.db.get_all_non_expired_stock_by_name(name)
 
@@ -124,12 +133,3 @@ class GraphicCardsSpider(scrapy.Spider):
         if exclusion:
             return exclusion.lower() in name
         return False
-
-    @staticmethod
-    def parse_price(price: str) -> float:
-        return float(price
-                     .replace("€", "")
-                     .replace(".", "")
-                     .replace(",", ".")
-                     .strip()
-                     )
