@@ -2,7 +2,17 @@
 
 ## Running locally
 
-Set environment variable `TELEGRAM_TOKEN`
+Set environment variables:
+
+```
+export TELEGRAM_TOKEN=<TOKEN>
+export TELEGRAM_CHAT_ID=<CHAT_ID>
+export MARIADB_USER=pi
+export MARIADB_PASSWORD=<PASSWORD>
+export MARIADB_HOST=localhost
+export MARIADB_PORT=3306
+export MARIADB_SCHEMA=graphic_cards_stock_crawler
+```
 
 ### PyCharm
 
@@ -60,60 +70,29 @@ From your local machine:
 mysql -upi -p -h <RASPBERYPI_IP>
 ```
 
-2. Copy files to server:
-
-```
-scp -r PythonProjects/graphic_cards_stock_crawler <user>@<ip>:/home/<user>/scrapy-projects
-```
-
-Set env variables (this is only for running manually, the cron job requires to set the env variables globally):
-
-```
-nano ~/.bashrc
-```
-
-and add:
-
-```
-export TELEGRAM_TOKEN=<TOKEN>
-export MARIADB_USER=pi
-export MARIADB_PASSWORD=<PASSWORD>
-export MARIADB_HOST=localhost
-export MARIADB_PORT=3306
-export MARIADB_SCHEMA=graphic_cards_stock_crawler
-```
-
-3. Install dependencies:
+2. Install dependencies:
 
 ```
 cd ~/scrapy-projects/graphic_cards_stock_crawler
 pip3 install -r requirements.txt
 ```
 
-4. Create script (`~/crawl.sh`):
+3. Copy `crawl.sh` to the home directory (`~/`):
 
-```sh
-#!/bin/sh
-# go to the spider directory
-cd /home/<user>/scrapy-projects/graphic_cards_stock_crawler
-# run the spider
-/usr/local/bin/scrapy crawl graphic_cards_stock
-```
-
-5. Make the script executable:
+4. Make the script executable:
 
 ```
 chmod +x ~/crawl.sh
 ```
 
-6. Create cron job:
+5. Create cron job:
 
 ```
 crontab -e
 ```
 
 ```
-*/2 * * * * MARIADB_USER=pi MARIADB_PASSWORD=<PASSWORD> MARIADB_HOST=localhost MARIADB_PORT=3306 MARIADB_SCHEMA=graphic_cards_stock_crawler TELEGRAM_TOKEN=<TOKEN> /home/pi/crawl.sh
+*/2 * * * * MARIADB_USER=pi MARIADB_PASSWORD=<PASSWORD> MARIADB_HOST=localhost MARIADB_PORT=3306 MARIADB_SCHEMA=graphic_cards_stock_crawler TELEGRAM_TOKEN=<TOKEN> TELEGRAM_CHAT_ID=<CHAT_ID> /home/pi/crawl.sh
 ```
 
 It will run every 2 minutes.
@@ -129,3 +108,5 @@ crontab -l
 ```
 grep CRON /var/log/syslog
 ```
+
+If the mail service is installed you can also see the logs with `sudo tail -f /var/mail/pi`

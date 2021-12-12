@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import uuid
 from typing import List
 
@@ -11,7 +12,6 @@ from graphic_cards_stock_crawler.utils.telegram_bot import TelegramBot
 coolmod_base_url = 'https://www.coolmod.com'
 ldlc_base_url = 'https://www.ldlc.com'
 vsgamers_base_url = 'https://www.vsgamers.es'
-telegram_chat_id = "1652193495"
 
 
 class GraphicCardsSpider(scrapy.Spider):
@@ -84,7 +84,7 @@ class GraphicCardsSpider(scrapy.Spider):
         for non_expired_stock in non_expired_stocks:
             if non_expired_stock.name not in self.processed_cards:
                 self.telegram_bot.edit_message(
-                    chat_id=telegram_chat_id,
+                    chat_id=os.getenv('TELEGRAM_CHAT_ID'),
                     message_id=non_expired_stock.telegram_message_id,
                     name=non_expired_stock.name,
                     chipset=non_expired_stock.chipset,
@@ -116,7 +116,7 @@ class GraphicCardsSpider(scrapy.Spider):
             if target_card.chipset.lower() in name.lower() \
                     and not self.is_excluded(name.lower(), target_card.exclusion) \
                     and target_card.max_price >= price:
-                message = self.telegram_bot.send_message(telegram_chat_id, name, target_card.chipset, str(price), link)
+                message = self.telegram_bot.send_message(os.getenv('TELEGRAM_CHAT_ID'), name, target_card.chipset, str(price), link)
                 self.db.add_stock(
                     Stock(
                         id=str(uuid.uuid4()),
