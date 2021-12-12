@@ -28,6 +28,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
     @patch('graphic_cards_stock_crawler.utils.telegram_bot.Bot.send_message')
+    @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_parse_coolmod(self, add_stock_mock, send_message):
         # WHEN
         self.spider.parse(fake_response_from_file(
@@ -61,6 +62,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
     @patch('graphic_cards_stock_crawler.utils.telegram_bot.Bot.send_message')
+    @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_should_skip_when_found_not_expired(self, add_stock_mock, send_message):
         # WHEN
         self.spider.parse(fake_response_from_file(
@@ -81,6 +83,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
     @patch('graphic_cards_stock_crawler.utils.telegram_bot.Bot.send_message')
+    @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_parse_ldlc(self, add_stock_mock, send_message):
         # WHEN
         self.spider.parse(fake_response_from_file(
@@ -101,6 +104,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
     @patch('graphic_cards_stock_crawler.utils.telegram_bot.Bot.send_message')
+    @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_parse_vsgamers(self, add_stock_mock, send_message):
         # WHEN
         self.spider.parse(fake_response_from_file(
@@ -121,6 +125,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
     @patch('graphic_cards_stock_crawler.utils.telegram_bot.Bot.send_message')
+    @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_parse_aussar(self, add_stock_mock, send_message):
         # WHEN
         self.spider.parse(fake_response_from_file(

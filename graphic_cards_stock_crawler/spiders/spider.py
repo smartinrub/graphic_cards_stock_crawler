@@ -19,8 +19,6 @@ class GraphicCardsSpider(scrapy.Spider):
     telegram_bot: TelegramBot = TelegramBot()
     db: DB = DB()
 
-    processed_cards = []
-
     name = "graphic_cards_stock"
     start_urls = [
         f'{coolmod_base_url}/tarjetas-graficas/',
@@ -35,6 +33,8 @@ class GraphicCardsSpider(scrapy.Spider):
         if "coolmod" in response.url:
             logging.info("Start processing Graphic Cards Stock from COOLMOD.")
 
+            processed_cards = []
+
             graphic_cards_found = response.selector.xpath(
                 '//div[@class="row categorylistproducts listtype-a hiddenproducts display-none"]/div')
             logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
@@ -46,10 +46,16 @@ class GraphicCardsSpider(scrapy.Spider):
                 price = self.parse_price(graphic_card.xpath(
                     'normalize-space(.//div[@class="productPrice position-relative"]//div[@class="discount"]//span[@class="totalprice"])')[
                                              0].extract())
-                self.process_graphic_card(name, price, f'{coolmod_base_url}{path}', graphic_card_targets)
+                self.process_graphic_card(name, price, f'{coolmod_base_url}{path}', "coolmod", graphic_card_targets)
+                processed_cards.append(name)
+
+            self.expire_cards(processed_cards, "coolmod")
 
         elif "ldlc" in response.url:
             logging.info("Start processing Graphic Cards Stock from LDLC.")
+
+            processed_cards = []
+
             graphic_cards_in_script = response.xpath('//script')[3].extract()
             first = graphic_cards_in_script.find('{')
             last = graphic_cards_in_script.rfind('}')
@@ -63,10 +69,15 @@ class GraphicCardsSpider(scrapy.Spider):
                 name = graphic_card.xpath('normalize-space(.//div[@class="pdt-desc"]//a/text())')[0].extract()
                 path = graphic_card.xpath('normalize-space(.//div[@class="pdt-desc"]//a/@href)')[0].extract()
                 price = float(list(filter(lambda x: x['id'] == item_id, found_graphic_cards_json))[0].get('price'))
-                self.process_graphic_card(name, price, f'{ldlc_base_url}{path}', graphic_card_targets)
+                self.process_graphic_card(name, price, f'{ldlc_base_url}{path}', "ldlc", graphic_card_targets)
+                processed_cards.append(name)
+
+            self.expire_cards(processed_cards, "ldlc")
 
         elif "vsgamers" in response.url:
             logging.info("Start processing Graphic Cards Stock from VS Gamers.")
+
+            processed_cards = []
 
             graphic_cards_found = response.selector.xpath(
                 '//div[@class="vs-product-list"]/div[@class="vs-product-list-item"]')
@@ -79,10 +90,15 @@ class GraphicCardsSpider(scrapy.Spider):
                     0].extract()
                 price = self.parse_price(
                     graphic_card.xpath('normalize-space(.//div[@class="vs-product-card-prices"])')[0].extract())
-                self.process_graphic_card(name, price, f'{vsgamers_base_url}{path}', graphic_card_targets)
+                self.process_graphic_card(name, price, f'{vsgamers_base_url}{path}', "vsgamers", graphic_card_targets)
+                processed_cards.append(name)
+
+            self.expire_cards(processed_cards, "vsgamers")
 
         elif "aussar" in response.url:
             logging.info("Start processing Graphic Cards Stock from AUSSAR.")
+
+            processed_cards = []
 
             graphic_cards_found = response.selector.xpath(
                 '//div[@class="product_list grid  product-list-default "]/div[@class="row"]')
@@ -92,12 +108,15 @@ class GraphicCardsSpider(scrapy.Spider):
                 name = graphic_card.xpath('normalize-space(.//h3)')[0].extract()
                 price = self.parse_price(graphic_card.xpath('normalize-space(.//span[@class="price"])')[0].extract())
                 link = graphic_card.xpath('normalize-space(.//h3/a/@href)')[0].extract()
-                self.process_graphic_card(name, price, link, graphic_card_targets)
+                self.process_graphic_card(name, price, link, "aussar", graphic_card_targets)
+                processed_cards.append(name)
 
-    def closed(self, reason):
-        non_expired_stocks: List[Stock] = self.db.get_non_expired_stock()
+            self.expire_cards(processed_cards, "aussar")
+
+    def expire_cards(self, processed_cards: list, retailer: str):
+        non_expired_stocks: List[Stock] = self.db.get_non_expired_stock_by_retailer(retailer)
         for non_expired_stock in non_expired_stocks:
-            if non_expired_stock.name not in self.processed_cards:
+            if non_expired_stock.name not in processed_cards:
                 self.telegram_bot.edit_message(
                     chat_id=os.getenv('TELEGRAM_CHAT_ID'),
                     message_id=non_expired_stock.telegram_message_id,
@@ -118,10 +137,8 @@ class GraphicCardsSpider(scrapy.Spider):
                      .strip()
                      )
 
-    def process_graphic_card(self, name: str, price: float, link: str, graphic_card_targets: list):
+    def process_graphic_card(self, name: str, price: float, link: str, retailer: str, graphic_card_targets: list):
         saved_stock: List[Stock] = self.db.get_all_non_expired_stock_by_name(name)
-
-        self.processed_cards.append(name)
 
         if len(saved_stock) != 0:
             logging.info(f"Skipping: [{name}]. Already notified.")
@@ -141,7 +158,8 @@ class GraphicCardsSpider(scrapy.Spider):
                         price=price,
                         link=link,
                         expired=False,
-                        telegram_message_id=message.message_id
+                        telegram_message_id=message.message_id,
+                        retailer=retailer
                     )
                 )
                 logging.info(f"Processed [{name}].")

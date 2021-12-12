@@ -26,6 +26,7 @@ class Stock(Base):
     link = Column(String)
     expired = Column(Boolean)
     telegram_message_id = Column(String)
+    retailer = Column(String)
 
 
 class DB:
@@ -55,8 +56,8 @@ class DB:
         self.get_sql_session().add(stock)
         self.get_sql_session().commit()
 
-    def get_non_expired_stock(self) -> List[Stock]:
-        return self.get_sql_session().query(Stock).filter_by(expired=False).all()
+    def get_non_expired_stock_by_retailer(self, retailer: str) -> List[Stock]:
+        return self.get_sql_session().query(Stock).filter_by(expired=False).filter_by(retailer=retailer).all()
 
     def set_expired_stock(self, name: str):
         stock = self.get_sql_session().query(Stock).filter(Stock.name == name).one()
