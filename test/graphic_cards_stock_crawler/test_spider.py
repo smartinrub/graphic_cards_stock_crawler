@@ -111,3 +111,23 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         # THEN
         self.assertEqual(1, add_stock_mock.call_count)
         self.assertEqual(1, send_message.call_count)
+
+    @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[]))
+    @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
+        GraphicCard(
+            chipset='3060',
+            max_price=769
+        )
+    ]))
+    @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
+    @patch('graphic_cards_stock_crawler.utils.telegram_bot.Bot.send_message')
+    def test_parse_aussar(self, add_stock_mock, send_message):
+        # WHEN
+        self.spider.parse(fake_response_from_file(
+            file_name='aussar_example.html',
+            url='https://www.aussar.es/tarjetas-graficas/tarjetas-graficas-nvidia//Disponibilidad-En%20stock/?q=Disponibilidad-En+stock'
+        ))
+
+        # THEN
+        self.assertEqual(1, add_stock_mock.call_count)
+        self.assertEqual(1, send_message.call_count)
