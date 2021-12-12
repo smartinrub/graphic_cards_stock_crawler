@@ -116,7 +116,7 @@ class GraphicCardsSpider(scrapy.Spider):
             if target_card.chipset.lower() in name.lower() \
                     and not self.is_excluded(name.lower(), target_card.exclusion) \
                     and target_card.max_price >= price:
-                message = self.telegram_bot.send_message(telegram_chat_id, name, target_card.chipset, str(price), link)
+                message = self.telegram_bot.send_message(os.getenv('TELEGRAM_CHAT_ID'), name, target_card.chipset, str(price), link)
                 self.db.add_stock(
                     Stock(
                         id=str(uuid.uuid4()),
