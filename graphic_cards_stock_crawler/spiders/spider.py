@@ -12,6 +12,7 @@ from graphic_cards_stock_crawler.utils.telegram_bot import TelegramBot
 coolmod_base_url = 'https://www.coolmod.com'
 ldlc_base_url = 'https://www.ldlc.com'
 vsgamers_base_url = 'https://www.vsgamers.es'
+aussar_base_url = 'https://www.aussar.es'
 
 
 class GraphicCardsSpider(scrapy.Spider):
@@ -24,7 +25,8 @@ class GraphicCardsSpider(scrapy.Spider):
     start_urls = [
         f'{coolmod_base_url}/tarjetas-graficas/',
         # f'{ldlc_base_url}/es-es/informatica/piezas-de-informatica/tarjeta-grafica/c4684/+fdi-1+fv1026-5801.html',
-        f'{vsgamers_base_url}/category/componentes/tarjetas-graficas?hidden_without_stock=true&filter-tipo=nvidia-537'
+        f'{vsgamers_base_url}/category/componentes/tarjetas-graficas?hidden_without_stock=true&filter-tipo=nvidia-537',
+        f'{aussar_base_url}/tarjetas-graficas/tarjetas-graficas-nvidia//Disponibilidad-En%20stock/?q=Disponibilidad-En+stock'
     ]
 
     def parse(self, response, **kwargs):
@@ -79,6 +81,19 @@ class GraphicCardsSpider(scrapy.Spider):
                     graphic_card.xpath('normalize-space(.//div[@class="vs-product-card-prices"])')[0].extract())
                 self.process_graphic_card(name, price, f'{vsgamers_base_url}{path}', graphic_card_targets)
 
+        elif "aussar" in response.url:
+            logging.info("Start processing Graphic Cards Stock from AUSSAR.")
+
+            graphic_cards_found = response.selector.xpath(
+                '//div[@class="product_list grid  product-list-default "]/div[@class="row"]')
+
+            logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
+            for graphic_card in graphic_cards_found:
+                name = graphic_card.xpath('normalize-space(.//h3)')[0].extract()
+                price = self.parse_price(graphic_card.xpath('normalize-space(.//span[@class="price"])')[0].extract())
+                link = graphic_card.xpath('normalize-space(.//h3/a/@href)')[0].extract()
+                self.process_graphic_card(name, price, link, graphic_card_targets)
+
     def closed(self, reason):
         non_expired_stocks: List[Stock] = self.db.get_non_expired_stock()
         for non_expired_stock in non_expired_stocks:
@@ -116,7 +131,8 @@ class GraphicCardsSpider(scrapy.Spider):
             if target_card.chipset.lower() in name.lower() \
                     and not self.is_excluded(name.lower(), target_card.exclusion) \
                     and target_card.max_price >= price:
-                message = self.telegram_bot.send_message(os.getenv('TELEGRAM_CHAT_ID'), name, target_card.chipset, str(price), link)
+                message = self.telegram_bot.send_message(os.getenv('TELEGRAM_CHAT_ID'), name, target_card.chipset,
+                                                         str(price), link)
                 self.db.add_stock(
                     Stock(
                         id=str(uuid.uuid4()),
