@@ -26,6 +26,19 @@ Run:
 scrapy crawl graphic_cards_stock`
 ```
 
+### Telegram Configuration
+
+1. Create bot with the **BotFather** and type `/newbot`.
+2. Create a Telegram channel and add the bot to the channel.
+3. Retrieve the channel ID: 
+   1. Make the channel public.
+   2. Make a request to the Telegram API with the Telegram API key and the channel name:
+      ```
+      curl -X POST 'https://api.telegram.org/bot<API_KEY>/sendMessage?chat_id=@<CHANNEL_NAME>&text=123'
+      ```
+   3. The response includes a chat ID.
+   4. Make the channel private again.
+
 ## Raspberry Setup
 
 1. Install and configure MariaDB:
