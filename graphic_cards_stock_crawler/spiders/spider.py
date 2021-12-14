@@ -13,6 +13,7 @@ coolmod_base_url = 'https://www.coolmod.com'
 ldlc_base_url = 'https://www.ldlc.com'
 vsgamers_base_url = 'https://www.vsgamers.es'
 aussar_base_url = 'https://www.aussar.es'
+ultima_informatica_base_url = 'https://ultimainformatica.com'
 
 
 class GraphicCardsSpider(scrapy.Spider):
@@ -21,10 +22,11 @@ class GraphicCardsSpider(scrapy.Spider):
 
     name = "graphic_cards_stock"
     start_urls = [
-        f'{coolmod_base_url}/tarjetas-graficas/',
+        # f'{coolmod_base_url}/tarjetas-graficas/',
         # f'{ldlc_base_url}/es-es/informatica/piezas-de-informatica/tarjeta-grafica/c4684/+fdi-1+fv1026-5801.html',
-        f'{vsgamers_base_url}/category/componentes/tarjetas-graficas?hidden_without_stock=true&filter-tipo=nvidia-537',
-        f'{aussar_base_url}/tarjetas-graficas/tarjetas-graficas-nvidia//Disponibilidad-En%20stock/?q=Disponibilidad-En+stock'
+        # f'{vsgamers_base_url}/category/componentes/tarjetas-graficas?hidden_without_stock=true&filter-tipo=nvidia-537',
+        # f'{aussar_base_url}/tarjetas-graficas/tarjetas-graficas-nvidia//Disponibilidad-En%20stock/?q=Disponibilidad-En+stock'
+        f'{ultima_informatica_base_url}/34-tarjetas-graficas/s-1/con_stock_en_tienda-stock_central/categorias_2-tarjetas_graficas'
     ]
 
     def parse(self, response, **kwargs):
@@ -112,6 +114,29 @@ class GraphicCardsSpider(scrapy.Spider):
                 processed_cards.append(name)
 
             self.expire_cards(processed_cards, "aussar")
+
+        elif "ultimainformatica" in response.url:
+            logging.info("Start processing Graphic Cards Stock from Ultima Informatica.")
+
+            processed_cards = []
+
+            graphic_cards_found = response.selector.xpath('//div[@class="products row products-grid"]/div')
+
+            logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
+            for graphic_card in graphic_cards_found:
+                if ("carrito" not in graphic_card.xpath('normalize-space(.//div[@class="product-add-cart"])')[
+                    0].extract()):
+                    continue
+
+                name = graphic_card.xpath('normalize-space(.//h3)')[0].extract()
+
+                # 100 / 107 x 1.21 (IVA) = 1,130841121495327
+                tax_rate = 1.130841121495327
+                price = round(self.parse_price(
+                    graphic_card.xpath('normalize-space(.//span[@class="product-price"])')[0].extract()) * tax_rate, 2)
+                link = graphic_card.xpath('normalize-space(.//h3/a/@href)')[0].extract()
+                self.process_graphic_card(name, price, link, "ultimainformatica", graphic_card_targets)
+                processed_cards.append(name)
 
     def expire_cards(self, processed_cards: list, retailer: str):
         non_expired_stocks: List[Stock] = self.db.get_non_expired_stock_by_retailer(retailer)

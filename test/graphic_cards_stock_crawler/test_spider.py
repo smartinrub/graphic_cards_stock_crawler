@@ -136,3 +136,24 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         # THEN
         self.assertEqual(1, add_stock_mock.call_count)
         self.assertEqual(1, send_message.call_count)
+
+    @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[]))
+    @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
+        GraphicCard(
+            chipset='3060',
+            max_price=734
+        )
+    ]))
+    @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
+    @patch('graphic_cards_stock_crawler.utils.telegram_bot.Bot.send_message')
+    @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
+    def test_parse_ultimainformatica(self, add_stock_mock, send_message):
+        # WHEN
+        self.spider.parse(fake_response_from_file(
+            file_name='ultimainformatica_example.html',
+            url='https://ultimainformatica.com/34-tarjetas-graficas/s-1/con_stock_en_tienda-stock_central/categorias_2-tarjetas_graficas'
+        ))
+
+        # THEN
+        self.assertEqual(1, add_stock_mock.call_count)
+        self.assertEqual(1, send_message.call_count)
