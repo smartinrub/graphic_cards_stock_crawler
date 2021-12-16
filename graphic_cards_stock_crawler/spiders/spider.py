@@ -14,7 +14,7 @@ ldlc_base_url = 'https://www.ldlc.com'
 vsgamers_base_url = 'https://www.vsgamers.es'
 aussar_base_url = 'https://www.aussar.es'
 ultimainformatica_base_url = 'https://ultimainformatica.com'
-redcomputer_base_url = 'https://ultimainformatica.com'
+redcomputer_base_url = 'https://tienda.redcomputer.es'
 
 
 class GraphicCardsSpider(scrapy.Spider):
