@@ -15,6 +15,7 @@ vsgamers_base_url = 'https://www.vsgamers.es'
 aussar_base_url = 'https://www.aussar.es'
 ultimainformatica_base_url = 'https://ultimainformatica.com'
 redcomputer_base_url = 'https://tienda.redcomputer.es'
+neobyte_base_url = 'https://www.neobyte.es'
 
 
 class GraphicCardsSpider(scrapy.Spider):
@@ -28,7 +29,8 @@ class GraphicCardsSpider(scrapy.Spider):
         f'{vsgamers_base_url}/category/componentes/tarjetas-graficas?hidden_without_stock=true&filter-tipo=nvidia-537',
         f'{aussar_base_url}/tarjetas-graficas/tarjetas-graficas-nvidia//Disponibilidad-En%20stock/?q=Disponibilidad-En+stock',
         f'{ultimainformatica_base_url}/34-tarjetas-graficas/s-1/con_stock_en_tienda-stock_central/categorias_2-tarjetas_graficas',
-        f'{redcomputer_base_url}/tarjetas-graficas-nvidia-rtx-10000020?productListView=list'
+        f'{redcomputer_base_url}/tarjetas-graficas-nvidia-rtx-10000020?productListView=list',
+        f'{neobyte_base_url}/tarjetas-graficas-111?q=Tarjeta+gráfica-NVIDIA+RTX+Serie+3000&productListView=list'
     ]
 
     def parse(self, response, **kwargs):
@@ -157,6 +159,28 @@ class GraphicCardsSpider(scrapy.Spider):
                 processed_cards.append(name)
 
             self.expire_cards(processed_cards, "redcomputer")
+
+        elif "neobyte" in response.url:
+            # TODO: Go to the next page
+            logging.info("Start processing Graphic Cards Stock from NEOBYTE.")
+
+            processed_cards = []
+
+            graphic_cards_found = response.selector.xpath('//div[@class="products row products-list"]/div')
+
+            logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
+            for graphic_card in graphic_cards_found:
+                if ("carrito" not in graphic_card.xpath('normalize-space(.//div[@class="product-add-cart"])')[
+                    0].extract()):
+                    continue
+                name = graphic_card.xpath('normalize-space(.//span)')[0].extract()
+                price = self.parse_price(
+                    graphic_card.xpath('normalize-space(.//span[@class="product-price"])')[0].extract())
+                link = graphic_card.xpath('normalize-space(.//span/a/@href)')[0].extract()
+                self.process_graphic_card(name, price, link, "neobyte", graphic_card_targets)
+                processed_cards.append(name)
+
+            self.expire_cards(processed_cards, "neobyte")
 
     def expire_cards(self, processed_cards: list, retailer: str):
         non_expired_stocks: List[Stock] = self.db.get_non_expired_stock_by_retailer(retailer)
