@@ -178,3 +178,24 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
         # THEN
         self.assertEqual(2, add_stock_mock.call_count)
         self.assertEqual(2, send_message.call_count)
+
+    @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[]))
+    @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
+        GraphicCard(
+            chipset='3080 ti',
+            max_price=1888.99
+        )
+    ]))
+    @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
+    @patch('graphic_cards_stock_crawler.utils.telegram_bot.Bot.send_message')
+    @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
+    def test_parse_neobyte(self, add_stock_mock, send_message):
+        # WHEN
+        self.spider.parse(fake_response_from_file(
+            file_name='neobyte_example.html',
+            url='https://www.neobyte.es/tarjetas-graficas-111?q=Tarjeta+gr%C3%A1fica-NVIDIA+RTX+Serie+3000&productListView=list'
+        ))
+
+        # THEN
+        self.assertEqual(1, add_stock_mock.call_count)
+        self.assertEqual(1, send_message.call_count)
