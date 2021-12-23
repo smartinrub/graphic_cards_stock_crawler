@@ -166,14 +166,14 @@ class GraphicCardsSpider(scrapy.Spider):
 
             processed_cards = []
 
-            graphic_cards_found = response.selector.xpath('//div[@class="products row products-list"]/div')
+            graphic_cards_found = response.selector.xpath('//section[@id="products"]/div/div[@id="js-product-list"]/div/div')
 
             logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
             for graphic_card in graphic_cards_found:
                 if ("carrito" not in graphic_card.xpath('normalize-space(.//div[@class="product-add-cart"])')[
                     0].extract()):
                     continue
-                name = graphic_card.xpath('normalize-space(.//span)')[0].extract()
+                name = graphic_card.xpath('normalize-space(.//span[@class="h3 product-title"])')[0].extract()
                 price = self.parse_price(
                     graphic_card.xpath('normalize-space(.//span[@class="product-price"])')[0].extract())
                 link = graphic_card.xpath('normalize-space(.//span/a/@href)')[0].extract()
