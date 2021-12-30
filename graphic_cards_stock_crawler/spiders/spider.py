@@ -186,6 +186,7 @@ class GraphicCardsSpider(scrapy.Spider):
         non_expired_stocks: List[Stock] = self.db.get_non_expired_stock_by_retailer(retailer)
         for non_expired_stock in non_expired_stocks:
             if non_expired_stock.name not in processed_cards:
+                self.db.set_expired_stock(non_expired_stock.name)
                 self.telegram_bot.edit_message(
                     chat_id=os.getenv('TELEGRAM_CHAT_ID'),
                     message_id=non_expired_stock.telegram_message_id,
@@ -194,7 +195,6 @@ class GraphicCardsSpider(scrapy.Spider):
                     price=str(non_expired_stock.price),
                     link=non_expired_stock.link
                 )
-                self.db.set_expired_stock(non_expired_stock.name)
                 logging.info(f"Expired [{non_expired_stock.name}].")
 
     @staticmethod
