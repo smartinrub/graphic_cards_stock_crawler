@@ -59,7 +59,7 @@ class DB:
     def get_non_expired_stock_by_retailer(self, retailer: str) -> List[Stock]:
         return self.get_sql_session().query(Stock).filter_by(expired=False).filter_by(retailer=retailer).all()
 
-    def set_expired_stock(self, name: str):
-        stock = self.get_sql_session().query(Stock).filter(Stock.name == name).one()
+    def set_expired_stock(self, stock_id: str):
+        stock = self.get_sql_session().query(Stock).filter(Stock.id == stock_id).one()
         stock.expired = True
         self.get_sql_session().commit()
