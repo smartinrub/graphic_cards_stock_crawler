@@ -166,7 +166,8 @@ class GraphicCardsSpider(scrapy.Spider):
 
             processed_cards = []
 
-            graphic_cards_found = response.selector.xpath('//section[@id="products"]/div/div[@id="js-product-list"]/div/div')
+            graphic_cards_found = response.selector.xpath(
+                '//section[@id="products"]/div/div[@id="js-product-list"]/div/div')
 
             logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
             for graphic_card in graphic_cards_found:
@@ -186,7 +187,7 @@ class GraphicCardsSpider(scrapy.Spider):
         non_expired_stocks: List[Stock] = self.db.get_non_expired_stock_by_retailer(retailer)
         for non_expired_stock in non_expired_stocks:
             if non_expired_stock.name not in processed_cards:
-                self.db.set_expired_stock(non_expired_stock.name)
+                self.db.set_expired_stock(non_expired_stock.id)
                 self.telegram_bot.edit_message(
                     chat_id=os.getenv('TELEGRAM_CHAT_ID'),
                     message_id=non_expired_stock.telegram_message_id,
