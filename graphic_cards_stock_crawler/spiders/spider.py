@@ -1,7 +1,10 @@
 import json
 import logging
 import os
+import sys
 import uuid
+from logging import Logger
+from logging.handlers import SysLogHandler
 from typing import List
 
 import scrapy
@@ -34,16 +37,17 @@ class GraphicCardsSpider(scrapy.Spider):
     ]
 
     def parse(self, response, **kwargs):
+        logger: Logger = self.get_logger()
         graphic_card_targets: List[GraphicCard] = self.db.get_all_graphic_cards()
 
         if "coolmod" in response.url:
-            logging.info("Start processing Graphic Cards Stock from COOLMOD.")
+            logger.info("Start processing Graphic Cards Stock from COOLMOD.")
 
             processed_cards = []
 
             graphic_cards_found = response.selector.xpath(
                 '//div[@class="row categorylistproducts listtype-a hiddenproducts display-none"]/div')
-            logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
+            logger.info(f"Found {len(graphic_cards_found.extract())} to process.")
             for graphic_card in graphic_cards_found:
                 name = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/text())')[0].extract()
                 if not name:
@@ -52,13 +56,14 @@ class GraphicCardsSpider(scrapy.Spider):
                 price = self.parse_price(graphic_card.xpath(
                     'normalize-space(.//div[@class="productPrice position-relative"]//div[@class="discount"]//span[@class="totalprice"])')[
                                              0].extract())
-                self.process_graphic_card(name, price, f'{coolmod_base_url}{path}', "coolmod", graphic_card_targets)
+                self.process_graphic_card(logger, name, price, f'{coolmod_base_url}{path}', "coolmod",
+                                          graphic_card_targets)
                 processed_cards.append(name)
 
-            self.expire_cards(processed_cards, "coolmod")
+            self.expire_cards(logger, processed_cards, "coolmod")
 
         elif "ldlc" in response.url:
-            logging.info("Start processing Graphic Cards Stock from LDLC.")
+            logger.info("Start processing Graphic Cards Stock from LDLC.")
 
             processed_cards = []
 
@@ -69,25 +74,25 @@ class GraphicCardsSpider(scrapy.Spider):
                                                   .replace("'", "\"") + "}")['ecommerce']['impressions']
 
             graphic_cards_found = response.selector.xpath('//div[@class="listing-product"]/ul/li')
-            logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
+            logger.info(f"Found {len(graphic_cards_found.extract())} to process.")
             for graphic_card in graphic_cards_found:
                 item_id = graphic_card.css('li::attr(id)').extract()[0][4:]
                 name = graphic_card.xpath('normalize-space(.//div[@class="pdt-desc"]//a/text())')[0].extract()
                 path = graphic_card.xpath('normalize-space(.//div[@class="pdt-desc"]//a/@href)')[0].extract()
                 price = float(list(filter(lambda x: x['id'] == item_id, found_graphic_cards_json))[0].get('price'))
-                self.process_graphic_card(name, price, f'{ldlc_base_url}{path}', "ldlc", graphic_card_targets)
+                self.process_graphic_card(logger, name, price, f'{ldlc_base_url}{path}', "ldlc", graphic_card_targets)
                 processed_cards.append(name)
 
-            self.expire_cards(processed_cards, "ldlc")
+            self.expire_cards(logger, processed_cards, "ldlc")
 
         elif "vsgamers" in response.url:
-            logging.info("Start processing Graphic Cards Stock from VS Gamers.")
+            logger.info("Start processing Graphic Cards Stock from VS Gamers.")
 
             processed_cards = []
 
             graphic_cards_found = response.selector.xpath(
                 '//div[@class="vs-product-list"]/div[@class="vs-product-list-item"]')
-            logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
+            logger.info(f"Found {len(graphic_cards_found.extract())} to process.")
             for graphic_card in graphic_cards_found:
                 name = graphic_card.xpath('normalize-space(.//div[@class="vs-product-card-title"])')[0].extract()
                 if not name:
@@ -96,37 +101,38 @@ class GraphicCardsSpider(scrapy.Spider):
                     0].extract()
                 price = self.parse_price(
                     graphic_card.xpath('normalize-space(.//div[@class="vs-product-card-prices"])')[0].extract())
-                self.process_graphic_card(name, price, f'{vsgamers_base_url}{path}', "vsgamers", graphic_card_targets)
+                self.process_graphic_card(logger, name, price, f'{vsgamers_base_url}{path}', "vsgamers",
+                                          graphic_card_targets)
                 processed_cards.append(name)
 
-            self.expire_cards(processed_cards, "vsgamers")
+            self.expire_cards(logger, processed_cards, "vsgamers")
 
         elif "aussar" in response.url:
-            logging.info("Start processing Graphic Cards Stock from AUSSAR.")
+            logger.info("Start processing Graphic Cards Stock from AUSSAR.")
 
             processed_cards = []
 
             graphic_cards_found = response.selector.xpath(
                 '//div[@class="product_list grid  product-list-default "]/div[@class="row"]')
 
-            logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
+            logger.info(f"Found {len(graphic_cards_found.extract())} to process.")
             for graphic_card in graphic_cards_found:
                 name = graphic_card.xpath('normalize-space(.//h3)')[0].extract()
                 price = self.parse_price(graphic_card.xpath('normalize-space(.//span[@class="price"])')[0].extract())
                 link = graphic_card.xpath('normalize-space(.//h3/a/@href)')[0].extract()
-                self.process_graphic_card(name, price, link, "aussar", graphic_card_targets)
+                self.process_graphic_card(logger, name, price, link, "aussar", graphic_card_targets)
                 processed_cards.append(name)
 
-            self.expire_cards(processed_cards, "aussar")
+            self.expire_cards(logger, processed_cards, "aussar")
 
         elif "ultimainformatica" in response.url:
-            logging.info("Start processing Graphic Cards Stock from Ultima Informatica.")
+            logger.info("Start processing Graphic Cards Stock from Ultima Informatica.")
 
             processed_cards = []
 
             graphic_cards_found = response.selector.xpath('//div[@class="products row products-grid"]/div')
 
-            logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
+            logger.info(f"Found {len(graphic_cards_found.extract())} to process.")
             for graphic_card in graphic_cards_found:
                 if ("carrito" not in graphic_card.xpath('normalize-space(.//div[@class="product-add-cart"])')[
                     0].extract()):
@@ -139,37 +145,39 @@ class GraphicCardsSpider(scrapy.Spider):
                 price = round(self.parse_price(
                     graphic_card.xpath('normalize-space(.//span[@class="product-price"])')[0].extract()) * tax_rate, 2)
                 link = graphic_card.xpath('normalize-space(.//h3/a/@href)')[0].extract()
-                self.process_graphic_card(name, price, link, "ultimainformatica", graphic_card_targets)
+                self.process_graphic_card(logger, name, price, link, "ultimainformatica", graphic_card_targets)
                 processed_cards.append(name)
 
+            self.expire_cards(logger, processed_cards, "ultimainformatica")
+
         elif "redcomputer" in response.url:
-            logging.info("Start processing Graphic Cards Stock from RED COMPUTER.")
+            logger.info("Start processing Graphic Cards Stock from RED COMPUTER.")
 
             processed_cards = []
 
             graphic_cards_found = response.selector.xpath('//div[@class="products row products-list"]/div')
 
-            logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
+            logger.info(f"Found {len(graphic_cards_found.extract())} to process.")
             for graphic_card in graphic_cards_found:
                 name = graphic_card.xpath('normalize-space(.//div[@class="product-description-short"])')[0].extract()
                 price = self.parse_price(
                     graphic_card.xpath('normalize-space(.//span[@class="product-price"])')[0].extract())
                 link = graphic_card.xpath('normalize-space(.//span/a/@href)')[0].extract()
-                self.process_graphic_card(name, price, link, "redcomputer", graphic_card_targets)
+                self.process_graphic_card(logger, name, price, link, "redcomputer", graphic_card_targets)
                 processed_cards.append(name)
 
-            self.expire_cards(processed_cards, "redcomputer")
+            self.expire_cards(logger, processed_cards, "redcomputer")
 
         elif "neobyte" in response.url:
             # TODO: Go to the next page
-            logging.info("Start processing Graphic Cards Stock from NEOBYTE.")
+            logger.info("Start processing Graphic Cards Stock from NEOBYTE.")
 
             processed_cards = []
 
             graphic_cards_found = response.selector.xpath(
                 '//section[@id="products"]/div/div[@id="js-product-list"]/div/div')
 
-            logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
+            logger.info(f"Found {len(graphic_cards_found.extract())} to process.")
             for graphic_card in graphic_cards_found:
                 if ("carrito" not in graphic_card.xpath('normalize-space(.//div[@class="product-add-cart"])')[
                     0].extract()):
@@ -178,12 +186,31 @@ class GraphicCardsSpider(scrapy.Spider):
                 price = self.parse_price(
                     graphic_card.xpath('normalize-space(.//span[@class="product-price"])')[0].extract())
                 link = graphic_card.xpath('normalize-space(.//span/a/@href)')[0].extract()
-                self.process_graphic_card(name, price, link, "neobyte", graphic_card_targets)
+                self.process_graphic_card(logger, name, price, link, "neobyte", graphic_card_targets)
                 processed_cards.append(name)
 
-            self.expire_cards(processed_cards, "neobyte")
+            self.expire_cards(logger, processed_cards, "neobyte")
 
-    def expire_cards(self, processed_cards: list, retailer: str):
+    @staticmethod
+    def get_logger() -> Logger:
+        syslog = SysLogHandler(address=('logs5.papertrailapp.com', 46858))
+        format = '%(asctime)s CRAWLER: %(message)s'
+        formatter = logging.Formatter(format, datefmt='%d-%m-%Y %H:%M:%S')
+        syslog.setFormatter(formatter)
+
+        logger = logging.getLogger()
+        logger.addHandler(syslog)
+        logger.setLevel(logging.INFO)
+
+        def my_handler(type, value, tb):
+            logger.exception('Uncaught exception: {0}'.format(str(value)))
+
+        # Install exception handler
+        sys.excepthook = my_handler
+
+        return logger
+
+    def expire_cards(self, logger: Logger, processed_cards: list, retailer: str):
         non_expired_stocks: List[Stock] = self.db.get_non_expired_stock_by_retailer(retailer)
         for non_expired_stock in non_expired_stocks:
             if non_expired_stock.name not in processed_cards:
@@ -196,7 +223,7 @@ class GraphicCardsSpider(scrapy.Spider):
                     price=str(non_expired_stock.price),
                     link=non_expired_stock.link
                 )
-                logging.info(f"Expired [{non_expired_stock.name}].")
+                logger.info(f"Expired [{non_expired_stock.name}].")
 
     @staticmethod
     def parse_price(price: str) -> float:
@@ -207,11 +234,12 @@ class GraphicCardsSpider(scrapy.Spider):
                      .strip()
                      )
 
-    def process_graphic_card(self, name: str, price: float, link: str, retailer: str, graphic_card_targets: list):
+    def process_graphic_card(self, logger: Logger, name: str, price: float, link: str, retailer: str,
+                             graphic_card_targets: list):
         saved_stock: List[Stock] = self.db.get_all_non_expired_stock_by_name(name)
 
         if len(saved_stock) != 0:
-            logging.info(f"Skipping: [{name}]. Already notified.")
+            logger.info(f"Skipping: [{name}]. Already notified.")
             return
 
         for target_card in graphic_card_targets:
@@ -232,7 +260,7 @@ class GraphicCardsSpider(scrapy.Spider):
                         retailer=retailer
                     )
                 )
-                logging.info(f"Processed [{name}].")
+                logger.info(f"Processed [{name}].")
 
     @staticmethod
     def is_excluded(name: str, exclusion: str) -> bool:
