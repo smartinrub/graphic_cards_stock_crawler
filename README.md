@@ -12,6 +12,8 @@ export MARIADB_PASSWORD=<PASSWORD>
 export MARIADB_HOST=localhost
 export MARIADB_PORT=3306
 export MARIADB_SCHEMA=graphic_cards_stock_crawler
+export PAPERTRAIL_URL=<papertrail_url>
+export PAPERTRAIL_PORT=<papertrail_port>
 ```
 
 ### PyCharm
