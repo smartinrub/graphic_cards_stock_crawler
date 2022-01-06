@@ -3,17 +3,17 @@ import unittest
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-from graphic_cards_stock_crawler.spiders import spider
+from graphic_cards_stock_crawler.service import retailer_service
 from graphic_cards_stock_crawler.utils.db import DB, Stock, GraphicCard
 from .responses.websites_example import fake_response_from_file
 
 
-class GraphicCardsStockSpiderTest(unittest.TestCase):
+class RetailerServiceTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
         os.environ['TELEGRAM_TOKEN'] = "123:ABC"
-        cls.spider = spider.GraphicCardsSpider()
+        cls.retailer_service = retailer_service.RetailerHandler()
 
     @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[]))
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
@@ -31,7 +31,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_parse_coolmod(self, add_stock_mock, send_message):
         # WHEN
-        self.spider.parse(fake_response_from_file(
+        self.retailer_service.process_coolmod(fake_response_from_file(
             file_name='coolmod_example.html',
             url='https://www.coolmod.com/tarjetas-graficas/'
         ))
@@ -65,7 +65,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_should_skip_when_found_not_expired(self, add_stock_mock, send_message):
         # WHEN
-        self.spider.parse(fake_response_from_file(
+        self.retailer_service.process_coolmod(fake_response_from_file(
             file_name='coolmod_example.html',
             url='https://www.coolmod.com/tarjetas-graficas/'
         ))
@@ -86,7 +86,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_parse_ldlc(self, add_stock_mock, send_message):
         # WHEN
-        self.spider.parse(fake_response_from_file(
+        self.retailer_service.process_ldlc(fake_response_from_file(
             file_name='ldlc_example.html',
             url='https://www.ldlc.com/es-es/informatica/piezas-de-informatica/tarjeta-grafica/c4684/+fdi-1+fv1026-5801.html'
         ))
@@ -107,7 +107,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_parse_vsgamers(self, add_stock_mock, send_message):
         # WHEN
-        self.spider.parse(fake_response_from_file(
+        self.retailer_service.process_vsgamers(fake_response_from_file(
             file_name='vsgamers_example.html',
             url='https://www.vsgamers.es/category/componentes/tarjetas-graficas?filter-tipo=nvidia-537&hidden_without_stock=true'
         ))
@@ -128,7 +128,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_parse_aussar(self, add_stock_mock, send_message):
         # WHEN
-        self.spider.parse(fake_response_from_file(
+        self.retailer_service.process_aussar(fake_response_from_file(
             file_name='aussar_example.html',
             url='https://www.aussar.es/tarjetas-graficas/tarjetas-graficas-nvidia//Disponibilidad-En%20stock/?q=Disponibilidad-En+stock'
         ))
@@ -149,7 +149,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_parse_ultimainformatica(self, add_stock_mock, send_message):
         # WHEN
-        self.spider.parse(fake_response_from_file(
+        self.retailer_service.process_ultimainformatica(fake_response_from_file(
             file_name='ultimainformatica_example.html',
             url='https://ultimainformatica.com/34-tarjetas-graficas/s-1/con_stock_en_tienda-stock_central/categorias_2-tarjetas_graficas'
         ))
@@ -170,7 +170,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_parse_redcomputer(self, add_stock_mock, send_message):
         # WHEN
-        self.spider.parse(fake_response_from_file(
+        self.retailer_service.process_redcomputer(fake_response_from_file(
             file_name='redcomputer_example.html',
             url='https://tienda.redcomputer.es/tarjetas-graficas-nvidia-rtx-10000020?productListView=list'
         ))
@@ -191,7 +191,7 @@ class GraphicCardsStockSpiderTest(unittest.TestCase):
     @patch.object(DB, 'get_non_expired_stock_by_retailer', MagicMock(return_value=[]))
     def test_parse_neobyte(self, add_stock_mock, send_message):
         # WHEN
-        self.spider.parse(fake_response_from_file(
+        self.retailer_service.process_neobyte(fake_response_from_file(
             file_name='neobyte_example.html',
             url='https://www.neobyte.es/tarjetas-graficas-111?q=Tarjeta+gr%C3%A1fica-NVIDIA+RTX+Serie+3000&productListView=list'
         ))
