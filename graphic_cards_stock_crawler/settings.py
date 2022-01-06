@@ -94,4 +94,7 @@ DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
 }
 
-LOG_LEVEL = 'INFO'
+# LOG_LEVEL = 'INFO'
+
+# LOG_ENABLED = False
+# configure_logging(install_root_handler=False)
