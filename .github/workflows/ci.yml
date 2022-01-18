@@ -28,3 +28,12 @@ jobs:
       - name: Test
         run: |
           python -m unittest discover
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output NOW=date::$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+    - name: Create DB Cluster Snapshot
+      id: create-db-snapshot
+      run: |
+        echo pre-retool-update-${{ env.NOW }}
