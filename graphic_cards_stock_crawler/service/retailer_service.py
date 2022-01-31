@@ -75,7 +75,7 @@ class RetailerHandler:
             path = graphic_card.xpath('normalize-space(.//div[@class="vs-product-card-title"]/a/@href)')[
                 0].extract()
             price = self.__parse_price(
-                graphic_card.xpath('normalize-space(.//div[@class="vs-product-card-prices"])')[0].extract())
+                graphic_card.xpath('normalize-space(.//span[@class="vs-product-card-prices-price"])')[0].extract())
             self.__process_graphic_card(name, price, f'{vsgamers_base_url}{path}', "vsgamers",
                                         graphic_card_targets)
             processed_cards.append(name)

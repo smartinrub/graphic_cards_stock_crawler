@@ -86,7 +86,7 @@ ROBOTSTXT_OBEY = True
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-DOWNLOAD_TIMEOUT = 40
+DOWNLOAD_TIMEOUT = 60
 
 RETRY_TIMES = 3
 
