@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: joshuaavalon/flyway-action@v1
         with:
-          url: jdbc:mariadb://localhost:${{ secrets.MARIADB_PORT }}
+          url: jdbc:mariadb://${{ secrets.MARIADB_HOST }}:${{ secrets.MARIADB_PORT }}
           user: ${{ secrets.MARIADB_USER }}
           password: ${{ secrets.MARIADB_PASSWORD }}
   build:
