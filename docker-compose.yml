@@ -1,0 +1,18 @@
+version: '3'
+services:
+  flyway:
+    image: flyway/flyway
+    command: -url=jdbc:mariadb://db -schemas=graphic_cards_stock_crawler -user=root -password=pass -connectRetries=60 baseline migrate
+    volumes:
+      - ./flyway/sql:/flyway/sql
+    depends_on:
+      - db
+  db:
+    image: mariadb:latest
+    environment:
+      - MARIADB_USER=user
+      - MARIADB_PASSWORD=pass
+      - MARIADB_ROOT_PASSWORD=pass
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - 3306:3306
