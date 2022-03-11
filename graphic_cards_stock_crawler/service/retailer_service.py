@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import time
 import uuid
 from typing import List
 
@@ -219,6 +220,7 @@ class RetailerHandler:
                     )
                 )
                 logging.info(f"Processed [{name}].")
+                time.sleep(1)
 
     @staticmethod
     def __is_excluded(name: str, exclusion: str) -> bool:
