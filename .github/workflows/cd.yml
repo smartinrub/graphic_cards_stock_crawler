@@ -57,11 +57,3 @@ jobs:
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
           script: pip3 install -r /home/pi/scrapy-projects/graphic_cards_stock_crawler/requirements.txt
-      - name: Run migration
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          port: ${{ secrets.PORT }}
-          key: ${{ secrets.SSHKEY }}
-          script: docker run --rm -v /home/pi/scrapy-projects/graphic_cards_stock_crawler/flyway/sql:/flyway/sql flyway/flyway -url=jdbc:mariadb://localhost:3306 -user=admin -password=pass baseline migrate
