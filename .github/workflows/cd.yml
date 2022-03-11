@@ -47,7 +47,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
-          source: "graphic_cards_stock_crawler/*,sql/*,scrapy.cfg,requirements.txt,main.py"
+          source: "graphic_cards_stock_crawler/*,flyway/*,scrapy.cfg,requirements.txt,main.py"
           target: "/home/pi/scrapy-projects/graphic_cards_stock_crawler"
       - name: Install dependencies
         uses: appleboy/ssh-action@master
