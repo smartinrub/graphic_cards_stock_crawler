@@ -125,3 +125,9 @@ grep CRON /var/log/syslog
 ```
 
 If the mail service is installed you can also see the logs with `sudo tail -f /var/mail/pi`
+
+## Run migrations
+
+```
+docker run --rm -v ./flyway/sql:/flyway/sql flyway/flyway -url=jdbc:mariadb://<IP>:3306 -schemas=graphic_cards_stock_crawler -user=<user> -password=<password> -connectRetries=60 migrate
+```
