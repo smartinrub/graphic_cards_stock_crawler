@@ -24,6 +24,9 @@ class RetailerHandler:
             '//div[@class="row categorylistproducts listtype-a hiddenproducts display-none"]/div')
         logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
         for graphic_card in graphic_cards_found:
+            if 'Agotado' in graphic_card.xpath('normalize-space(.//span[@class="stock off"])')[0].extract():
+                continue
+
             name = graphic_card.xpath('normalize-space(.//div[@class="productName"]//a/text())')[0].extract()
             if not name:
                 continue
