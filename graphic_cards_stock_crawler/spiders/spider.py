@@ -35,7 +35,7 @@ class GraphicCardsSpider(scrapy.Spider):
         root_logger.addHandler(rotating_file_log)
 
         syslog = SysLogHandler(address=(os.getenv('PAPERTRAIL_URL'), int(os.getenv('PAPERTRAIL_PORT'))))
-        syslog.setLevel(logging.ERROR)
+        syslog.setLevel(logging.INFO)
         syslog.setFormatter(formatter)
         root_logger.addHandler(syslog)
 
