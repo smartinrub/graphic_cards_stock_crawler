@@ -14,7 +14,7 @@ class GraphicCardsSpider(scrapy.Spider):
 
     name = "graphic_cards_stock"
     start_urls = [
-        f'{coolmod_base_url}/tarjetas-graficas/',
+        # f'{coolmod_base_url}/tarjetas-graficas/',
         # f'{ldlc_base_url}/es-es/informatica/piezas-de-informatica/tarjeta-grafica/c4684/+fdi-1+fv1026-5801.html',
         f'{vsgamers_base_url}/category/componentes/tarjetas-graficas?hidden_without_stock=true&filter-tipo=nvidia-537',
         f'{aussar_base_url}/tarjetas-graficas/tarjetas-graficas-nvidia//Disponibilidad-En%20stock/?q=Disponibilidad-En+stock',
