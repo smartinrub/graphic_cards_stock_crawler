@@ -1,3 +1,5 @@
-Scrapy==2.6.0
-python-telegram-bot==13.7
-sqlalchemy==1.4.27
+Scrapy==2.6.1
+python-telegram-bot==13.11
+sqlalchemy==1.4.32
+scrapy-rotating-proxies==0.6.2
+pymysql==1.0.2

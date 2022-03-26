@@ -13,7 +13,7 @@ SPIDER_MODULES = ['graphic_cards_stock_crawler.spiders']
 NEWSPIDER_MODULE = 'graphic_cards_stock_crawler.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -92,9 +92,37 @@ RETRY_TIMES = 3
 
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
+    # 'rotating_proxies.middlewares.RotatingProxyMiddleware': 800,
+    # 'rotating_proxies.middlewares.BanDetectionMiddleware': 800,
 }
 
 LOG_LEVEL = 'INFO'
 
 # LOG_ENABLED = False
 # configure_logging(install_root_handler=False)
+
+# configuration for scrapy-rotating-proxies
+# ROTATING_PROXY_LIST = [
+#     '82.223.108.75:80',
+#     '50.16.33.219:80',
+#     '169.57.1.85:8123',
+#     '80.48.119.28:8080',
+#     '173.244.200.156:34515',
+#     '188.132.241.165:56109',
+#     '67.213.212.13:47727',
+#     '143.198.237.236:9050',
+#     '173.244.200.154:36852',
+#     '147.135.255.62:8122',
+#     '62.109.31.192:20000',
+#     '38.91.106.204:42807',
+#     '188.132.241.162:56109',
+#     '136.243.174.243:1080',
+#     '88.250.55.132:8080',
+#     '75.111.123.167:1888',
+#     '147.135.255.62:8139',
+#     '173.244.200.154:44302',
+#     '62.109.31.192:20000',
+#     '173.244.200.156:64631',
+#     '147.135.255.62:8129'
+# ]
+# ROTATING_PROXY_LIST_PATH = 'list_of_proxies.txt'
