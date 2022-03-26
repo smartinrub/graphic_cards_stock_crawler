@@ -136,11 +136,11 @@ class RetailerHandler:
 
         processed_cards = []
 
-        graphic_cards_found = response.selector.xpath('//div[@class="products row products-list"]/div')
+        graphic_cards_found = response.selector.xpath('//div[@class="products row products-grid"]/div')
 
         logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
         for graphic_card in graphic_cards_found:
-            name = graphic_card.xpath('normalize-space(.//div[@class="product-description-short"])')[0].extract()
+            name = graphic_card.xpath('normalize-space(.//span[@class="h3 product-title"])')[0].extract()
             price = self.__parse_price(
                 graphic_card.xpath('normalize-space(.//span[@class="product-price"])')[0].extract())
             link = graphic_card.xpath('normalize-space(.//span/a/@href)')[0].extract()
