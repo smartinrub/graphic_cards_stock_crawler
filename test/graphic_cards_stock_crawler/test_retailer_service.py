@@ -19,7 +19,8 @@ class RetailerServiceTest(unittest.TestCase):
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
         GraphicCard(
             chipset='3070',
-            max_price=1200
+            max_price=1200,
+            exclusion='3070 Ti'
         ),
         GraphicCard(
             chipset='3090',
@@ -37,8 +38,8 @@ class RetailerServiceTest(unittest.TestCase):
         ))
 
         # THEN
-        self.assertEqual(4, add_stock_mock.call_count)
-        self.assertEqual(4, send_message.call_count)
+        self.assertEqual(3, add_stock_mock.call_count)
+        self.assertEqual(3, send_message.call_count)
 
     @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[
         Stock(
@@ -53,7 +54,8 @@ class RetailerServiceTest(unittest.TestCase):
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
         GraphicCard(
             chipset='3070',
-            max_price=1200
+            max_price=1200,
+            exclusion='3070 Ti'
         ),
         GraphicCard(
             chipset='3090',
@@ -120,7 +122,8 @@ class RetailerServiceTest(unittest.TestCase):
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
         GraphicCard(
             chipset='3060',
-            max_price=769
+            max_price=769,
+            exclusion='3060 Ti'
         )
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
@@ -134,14 +137,15 @@ class RetailerServiceTest(unittest.TestCase):
         ))
 
         # THEN
-        self.assertEqual(1, add_stock_mock.call_count)
-        self.assertEqual(1, send_message.call_count)
+        self.assertEqual(2, add_stock_mock.call_count)
+        self.assertEqual(2, send_message.call_count)
 
     @patch.object(DB, 'get_all_non_expired_stock_by_name', MagicMock(return_value=[]))
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
         GraphicCard(
             chipset='3060',
-            max_price=734
+            max_price=734,
+            exclusion='3060 Ti'
         )
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')
@@ -162,7 +166,7 @@ class RetailerServiceTest(unittest.TestCase):
     @patch.object(DB, 'get_all_graphic_cards', MagicMock(return_value=[
         GraphicCard(
             chipset='3070 ti',
-            max_price=1198.99
+            max_price=1049.99
         )
     ]))
     @patch('graphic_cards_stock_crawler.utils.db.DB.add_stock')

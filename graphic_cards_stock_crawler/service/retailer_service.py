@@ -92,8 +92,7 @@ class RetailerHandler:
 
         processed_cards = []
 
-        graphic_cards_found = response.selector.xpath(
-            '//div[@class="product_list grid  product-list-default "]/div[@class="row"]')
+        graphic_cards_found = response.selector.xpath('//div[@class="product_list grid  product-list-default "]/div/div')
 
         logging.info(f"Found {len(graphic_cards_found.extract())} to process.")
         for graphic_card in graphic_cards_found:
