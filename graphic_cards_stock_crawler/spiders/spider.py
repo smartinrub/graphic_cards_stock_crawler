@@ -20,7 +20,7 @@ class GraphicCardsSpider(scrapy.Spider):
         f'{aussar_base_url}/tarjetas-graficas/tarjetas-graficas-nvidia//Disponibilidad-En%20stock/?q=Disponibilidad-En+stock',
         f'{ultimainformatica_base_url}/34-tarjetas-graficas/s-1/con_stock_en_tienda-stock_central/categorias_2-tarjetas_graficas?order=product.price.desc&resultsPerPage=9999999',
         f'{redcomputer_base_url}/tarjetas-graficas-nvidia-rtx-10000020?productListView=list',
-        f'{neobyte_base_url}/tarjetas-graficas-111?q=Tarjeta+gráfica-NVIDIA+RTX+Serie+3000&productListView=list'
+        # f'{neobyte_base_url}/tarjetas-graficas-111?q=Tarjeta+gráfica-NVIDIA+RTX+Serie+3000&productListView=list'
     ]
 
     def __init__(self, **kwargs):
